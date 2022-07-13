@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --table-width: 80%;
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#chess-table {
+  background-color: orange;
+  margin: 1rem auto;
+  width: 55rem;
+  display: grid;
+  grid-template-columns: repeat(8, 12.5%);
+  height: 55rem;
+  border: 1px solid black;
+}
+
+.chess-cell {
+  width: 100%;
+  height: 100%;
+  /* border: 1px solid black; */
+  background-color: #eeeed2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.dark-chess-cell {
+  background-color: #769656;
+}
+.piece-img {
+  position: absolute;
+  height: 70%;
+  width: 70%;
+}
