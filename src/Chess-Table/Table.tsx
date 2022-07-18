@@ -1,7 +1,8 @@
 import { Dispatch } from "react";
-import { chessTable } from "../ChessTable";
+//import { chessTable } from "../ChessTable";
 import { Piece } from "../PiecesModules/Piece";
 import CellDiv from "./CellDiv";
+import { newChessTable } from "../ChessTable";
 
 const Table = (props: {
   boardState: Piece[];
@@ -9,12 +10,11 @@ const Table = (props: {
 }) => {
   return (
     <div id="chess-table">
-      {chessTable.cellArr.map((cell) => {
+      {newChessTable.cellArray.map((cell) => {
         return (
           <CellDiv
-            xy={cell.xy}
+            cell={cell}
             key={cell.xy}
-            xySum={cell.xySum}
             boardState={props.boardState}
             setBoardState={props.setBoardState}
           />

@@ -1,17 +1,25 @@
 import { Piece } from "./Piece";
-import { PieceFactory } from "./PieceFactory";
+import { pieceFactory, PieceFactory } from "./PieceFactory";
 import { PieceType } from "./PieceType";
 import { PiecesStarterPosition } from "./PiecesStarterPosition";
+import { Cell } from "../Cell";
+
+interface selectedSquare {
+  selectedPiece: Piece[];
+  selectedCell: Cell[];
+}
 
 export class PiecesMain {
   public static piecesArr: Piece[] = [];
+  public static selectedPiece: Piece[] = [];
+  public static selectedCell: Cell[] = [];
 
   public static createPiece(
     pieceType: PieceType,
     isLight: boolean,
     position: string
   ): Piece {
-    let createdPiece: Piece = PieceFactory.getPiece(
+    let createdPiece: Piece = pieceFactory.getPiece(
       pieceType,
       isLight,
       position
@@ -59,5 +67,17 @@ export class PiecesMain {
     PiecesStarterPosition.DRook.forEach((p) => {
       PiecesMain.createPiece(PieceType.ROOK, false, p);
     });
+  }
+
+  public static selectPiece(piece: Piece, cell: Cell) {
+    PiecesMain.deSelectPiece();
+    PiecesMain.selectedPiece.push(piece);
+    PiecesMain.selectedCell.push(cell);
+    console.log(piece);
+  }
+
+  public static deSelectPiece() {
+    PiecesMain.selectedPiece = [];
+    PiecesMain.selectedCell = [];
   }
 }

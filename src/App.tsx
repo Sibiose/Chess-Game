@@ -9,6 +9,13 @@ function App() {
   return (
     <div className="App">
       <Table boardState={boardState} setBoardState={setBoardState} />
+      <button
+        onClick={() => {
+          setBoardState([...PiecesMain.piecesArr]);
+        }}
+      >
+        Move random piece
+      </button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Cell } from "./Cell";
+import { NewTable } from "./NewTable";
 import { Piece } from "./PiecesModules/Piece";
 import { PiecesMain } from "./PiecesModules/PiecesMain";
 
@@ -15,6 +16,7 @@ export class ChessTable {
       });
     });
   }
+
   buildPieces() {
     PiecesMain.buildLightPieces();
     PiecesMain.buildDarkPieces();
@@ -22,9 +24,16 @@ export class ChessTable {
   renderPieces() {}
 }
 
-export const chessTable: ChessTable = new ChessTable();
+// export const chessTable: ChessTable = new ChessTable();
 
-chessTable.buildTable();
-chessTable.buildPieces();
-PiecesMain.piecesArr[2].move(`D3`);
-console.log(PiecesMain.piecesArr);
+export const newChessTable: NewTable = new NewTable();
+
+newChessTable.buildTable();
+newChessTable.buildPieces();
+newChessTable.placePieces();
+console.log(newChessTable.cellArray);
+
+// chessTable.buildTable();
+// chessTable.buildPieces();
+// PiecesMain.piecesArr[2].move(`D3`);
+// console.log(PiecesMain.piecesArr);
