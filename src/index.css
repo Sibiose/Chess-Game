@@ -21,10 +21,10 @@ body {
 #chess-table {
   background-color: orange;
   margin: 1rem auto;
-  width: 55rem;
+  width: 40rem;
   display: grid;
   grid-template-columns: repeat(8, 12.5%);
-  height: 55rem;
+  height: 40rem;
   border: 1px solid black;
 }
 
@@ -38,9 +38,11 @@ body {
   align-items: center;
   position: relative;
 }
+
 .dark-chess-cell {
   background-color: #769656;
 }
+
 .piece-img {
   position: absolute;
   height: 70%;

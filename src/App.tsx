@@ -1,21 +1,9 @@
-import React, { useState } from "react";
-import Table from "./Chess-Table/Table";
-import "./index.css";
-import { PiecesMain } from "./PiecesModules/PiecesMain";
+import { BoardView } from "./Board";
 
 function App() {
-  const [boardState, setBoardState] = useState(PiecesMain.piecesArr);
-
   return (
     <div className="App">
-      <Table boardState={boardState} setBoardState={setBoardState} />
-      <button
-        onClick={() => {
-          setBoardState([...PiecesMain.piecesArr]);
-        }}
-      >
-        Move random piece
-      </button>
+      <BoardView />
     </div>
   );
 }
