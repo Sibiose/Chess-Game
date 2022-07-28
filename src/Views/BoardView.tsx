@@ -1,12 +1,7 @@
 import { useState } from "react";
-import { Cell, CellView, createDefaultCells } from "./Cell";
-import { Piece, createDefaultPieces } from "./Piece";
-import { PlayerColors } from "./PieceEnums";
-
-export interface Board {
-    cells: Cell[];
-    pieces: Piece[];
-}
+import { CellView } from "./CellView";
+import { createDefaultBoard } from "../Model/Board";
+import { PlayerColors } from "../Model/PieceEnums";
 
 export const BoardView = () => {
     const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
@@ -23,12 +18,7 @@ export const BoardView = () => {
     );
 }
 
-export const createDefaultBoard = (bottomPlayer: PlayerColors): Board => {
-    let pieces = createDefaultPieces(bottomPlayer);
-    let cells = createDefaultCells(pieces);
 
-    return { pieces, cells };
-}
 
 
 

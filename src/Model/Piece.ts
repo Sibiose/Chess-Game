@@ -1,16 +1,10 @@
-import { Coordonate } from "./Cell";
 import { createDefaultPositionsMap, PieceType, PlayerColors } from "./PieceEnums";
+import { Coordonate } from './Cell'
 
 export interface Piece {
     position: Coordonate;
     pieceType: PieceType;
     pieceColor: PlayerColors;
-}
-
-export const PieceView = (props: { src: string }) => {
-
-    return <img className="piece-img" src={props.src} alt="" />;
-
 }
 
 export const createDefaultPieces = (bottomPlayer: PlayerColors): Piece[] => {

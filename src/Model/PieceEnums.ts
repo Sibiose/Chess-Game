@@ -1,4 +1,4 @@
-import { Coordonate } from "./Cell";
+import { Coordonate } from './Cell'
 
 export enum PlayerColors {
     DARK = 'Dark',

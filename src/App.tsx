@@ -1,4 +1,4 @@
-import { BoardView } from "./Board";
+import { BoardView } from "./Views/BoardView";
 
 function App() {
   return (

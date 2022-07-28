@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { getTypeParameterOwner } from 'typescript';
 import App from './App';
 import "./index.css"
 
@@ -12,5 +13,4 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
 
