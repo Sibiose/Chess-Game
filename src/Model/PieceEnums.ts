@@ -33,6 +33,12 @@ export const createImgSrcMap = (): Map<string, string> => {
     return imgSrcMap;
 }
 
+export const getImgSrc = (key: string): string => {
+    const imgSrcMap = createImgSrcMap();
+
+    return imgSrcMap.get(key) ?? '';
+}
+
 export const createDefaultPositionsMap = (): Map<string, Coordonate[]> => {
     let starterPositionMap = new Map<string, Coordonate[]>()
     starterPositionMap.set('Pawn', [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 }, { x: 5, y: 2 }, { x: 6, y: 2 }, { x: 7, y: 2 }, { x: 8, y: 2 }]);
