@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { CellView } from "./CellView";
-import { createDefaultBoard } from "../Model/Board";
+import { Board, createDefaultBoard } from "../Model/Board";
 import { PlayerColors } from "../Model/PieceEnums";
 
+
+
 export const BoardView = () => {
+
+    const onPieceMove = (boardState: Board) => {
+        setBoardState(boardState);
+    }
     const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
-    const [boardState, setBoardState] = useState(createDefaultBoard(bottomPlayer));
+    const defaultState = createDefaultBoard(bottomPlayer)
+
+    const [boardState, setBoardState] = useState<Board>(defaultState);
 
     const cells = boardState.cells.map((cell, i) => {
-        return <CellView key={i} cell={cell} boardState={boardState} />
+        return <CellView onPieceMove={onPieceMove} key={i} cell={cell} boardState={boardState} />
     })
 
     return (

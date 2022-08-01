@@ -1,21 +1,37 @@
 import { Board } from "../Model/Board";
 import { Cell } from "../Model/Cell";
 import { PieceView } from "./PieceView";
-import { createImgSrcMap } from "../Model/PieceEnums";
+import { getImgSrc } from "../Model/PieceEnums";
+import { useDrop } from "react-dnd";
 
-export const CellView = (props: { cell: Cell, boardState: Board }) => {
-    let cell: Cell = props.cell
-    let boardState: Board = props.boardState;
-    let imgSrcMap = createImgSrcMap();
 
-    let pieceImg = boardState.pieces.map((piece, i) => {
-        if (piece.position.x === cell.position.x && piece.position.y === cell.position.y) {
-            return <PieceView key={i} src={imgSrcMap.get(piece.pieceColor + piece.pieceType) ?? ""} />
+const movePiece = (boardState: Board, lastCell: Cell, cell: Cell): Board => {
+
+    if (cell.piece?.color === lastCell?.piece?.color)
+        return { ...boardState }
+
+    cell.piece = lastCell.piece;
+    lastCell.piece = undefined;
+
+    return { ...boardState };
+}
+
+export const CellView = (props: { cell: Cell, boardState: Board, onPieceMove: (boardState: Board) => void }) => {
+
+
+    const [, drop] = useDrop(() => ({
+        accept: 'piece',
+        drop: (item: { lastCell: Cell }) => {
+            let lastCell: Cell = item.lastCell;
+            props.onPieceMove(movePiece(props.boardState, lastCell, cell));
         }
-        return
-    })
+    }))
+
+    let cell: Cell = props.cell
+    let pieceImg = cell.piece ? <PieceView cell={cell} src={getImgSrc(cell.piece?.color + cell.piece?.type)} /> : null;
+
     return (
-        <div className={(cell.position.x + cell.position.y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
+        <div ref={drop} className={(cell.position.x + cell.position.y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
             {pieceImg}
         </div>
     )

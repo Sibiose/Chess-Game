@@ -1,4 +1,3 @@
-import { Coordonate } from './Cell'
 
 export enum PlayerColors {
     DARK = 'Dark',
@@ -33,15 +32,11 @@ export const createImgSrcMap = (): Map<string, string> => {
     return imgSrcMap;
 }
 
-export const createDefaultPositionsMap = (): Map<string, Coordonate[]> => {
-    let starterPositionMap = new Map<string, Coordonate[]>()
-    starterPositionMap.set('Pawn', [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 }, { x: 5, y: 2 }, { x: 6, y: 2 }, { x: 7, y: 2 }, { x: 8, y: 2 }]);
-    starterPositionMap.set('Rook', [{ x: 1, y: 1 }, { x: 8, y: 1 }]);
-    starterPositionMap.set('Knight', [{ x: 2, y: 1 }, { x: 7, y: 1 }]);
-    starterPositionMap.set('Bishop', [{ x: 3, y: 1 }, { x: 6, y: 1 }]);
-    starterPositionMap.set('Queen', [{ x: 4, y: 1 }]);
-    starterPositionMap.set('King', [{ x: 5, y: 1 }]);
+export const getImgSrc = (key: string): string => {
+    const imgSrcMap = createImgSrcMap();
 
-    return starterPositionMap;
+    return imgSrcMap.get(key) ?? '';
 }
+
+
 
