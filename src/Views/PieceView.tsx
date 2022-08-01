@@ -1,18 +1,14 @@
 import { useDrag, DragPreviewImage } from "react-dnd";
-import { Piece } from "../Model/Piece";
+import { Cell } from "../Model/Cell";
 
-
-
-
-export const PieceView = (props: { src: string, piece: Piece|undefined }) => {
-    let piece = props.piece
+export const PieceView = (props: { src: string, cell: Cell }) => {
+    let cell = props.cell
     const [{ isDragging }, drag, preview] = useDrag(() => ({
-        type: 'piece', item: { piece },
+        type: 'piece', item: { lastCell: cell },
 
         collect: (monitor) => {
             return {
                 isDragging: !!monitor.isDragging(),
-
             }
         }
 
