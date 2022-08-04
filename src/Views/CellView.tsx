@@ -1,39 +1,51 @@
-import { Board } from "../Model/Board";
-import { Cell } from "../Model/Cell";
+import { ChessGame } from "../Model/Board";
+import { Cell, indexToPosition } from "../Model/Cell";
 import { PieceView } from "./PieceView";
-import { getImgSrc } from "../Model/PieceEnums";
 import { useDrop } from "react-dnd";
 
+export const CellView = (props: { index: number, game: ChessGame }) => {
+    let { game, index } = props;
+    let cell: Cell = game.cells[props.index]
+    let [x, y] = indexToPosition(index);
+    let imgSrc = `../../Pieces/${cell.pieceType}-${cell.pieceColor}.svg`
 
-const movePiece = (boardState: Board, lastCell: Cell, cell: Cell): Board => {
-
-    if (cell.piece?.color === lastCell?.piece?.color)
-        return { ...boardState }
-
-    cell.piece = lastCell.piece;
-    lastCell.piece = undefined;
-
-    return { ...boardState };
-}
-
-export const CellView = (props: { cell: Cell, boardState: Board, onPieceMove: (boardState: Board) => void }) => {
-
-
-    const [, drop] = useDrop(() => ({
+    const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: 'piece',
-        drop: (item: { lastCell: Cell }) => {
-            let lastCell: Cell = item.lastCell;
-            props.onPieceMove(movePiece(props.boardState, lastCell, cell));
-        }
-    }))
+        drop: (item: { index: number }) => { game.move(item.index, index) },
+        canDrop: (item: { index: number }) => game.canMove(item.index, index),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop()
+        }),
 
-    let cell: Cell = props.cell
-    let pieceImg = cell.piece ? <PieceView cell={cell} src={getImgSrc(cell.piece?.color + cell.piece?.type)} /> : null;
+    }),[game])
 
     return (
-        <div ref={drop} className={(cell.position.x + cell.position.y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
-            {pieceImg}
+        <div style={isOver ? { backgroundColor: 'yellow' } : {}} ref={drop} className={(x + y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
+            {cell.pieceType && <PieceView index={index} src={imgSrc} />}
+            {isOver && !canDrop && <CellOverlay color={'red'} />}
+            {!isOver && canDrop && <CellOverlay color={'yellow'} />}
+            {isOver && canDrop && <CellOverlay color={'green'} />}
         </div>
+
+    )
+}
+
+export const CellOverlay = (props: { color: string }) => {
+    let color = props.color;
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                height: '100%',
+                width: '100%',
+                zIndex: 1,
+                opacity: 0.6,
+                backgroundColor: `${color}`,
+            }}
+        />
     )
 }
 
