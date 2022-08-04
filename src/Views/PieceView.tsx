@@ -1,10 +1,10 @@
 import { useDrag, DragPreviewImage } from "react-dnd";
-import { Cell } from "../Model/Cell";
+import { ChessGame } from "../Model/Board";
 
-export const PieceView = (props: { src: string, cell: Cell }) => {
-    let cell = props.cell
+export const PieceView = (props: { src: string, index: number }) => {
+    let { src, index } = props;
     const [{ isDragging }, drag, preview] = useDrag(() => ({
-        type: 'piece', item: { lastCell: cell },
+        type: 'piece', item: { index },
 
         collect: (monitor) => {
             return {
@@ -13,14 +13,15 @@ export const PieceView = (props: { src: string, cell: Cell }) => {
         }
 
     }))
-    let pieceStyle = { opacity: isDragging ? 0 : 1 }
+
+    let pieceStyle = { opacity: isDragging ? 0.2 : 1 }
 
 
 
     return (
         <>
-            <DragPreviewImage connect={preview} src={props.src} />
-            <img ref={drag} style={pieceStyle} className="piece-img" src={props.src} alt="" />
+            <DragPreviewImage connect={preview} src={src} />
+            <img ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
         </>)
 
 }

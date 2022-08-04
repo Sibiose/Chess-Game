@@ -1,23 +1,43 @@
-import { Cell } from "./Cell";
+import { useMemo, useState } from "react";
+import { canMove, computeMoves, move } from "./MovementLogic";
+import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
-export interface Board {
+export interface BoardState {
+    bottomPlayer: PlayerColors;
     cells: Cell[];
+    legalMoves: number[];
 }
 
-export const createDefaultBoard = (bottomPlayer: PlayerColors): Board => {
+export interface ChessGame extends BoardState {
+    move: (from: number, to: number) => void
+    canMove: (from: number, to: number) => boolean
+}
+
+export const useBoard = (bottomPlayer: PlayerColors) => {
+    const [boardState, setBoardState] = useState<BoardState>(createDefaultBoard(bottomPlayer));
+
+    let game = useMemo(() => {
+        return {
+            ...boardState,
+            move: (from: number, to: number) => setBoardState(move(boardState, from, to)),
+            canMove: (from: number, to: number) => canMove(boardState, from, to),
+        }
+    }, [boardState, setBoardState])
+    return game;
+}
+
+export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
     let topPlayer = bottomPlayer === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK;
     let cells: Cell[] = [
-        { piece: { type: PieceType.ROOK, color: topPlayer }, position: { x: 1, y: 8 } }, { piece: { type: PieceType.KNIGHT, color: topPlayer }, position: { x: 2, y: 8 } }, { piece: { type: PieceType.BISHOP, color: topPlayer }, position: { x: 3, y: 8 } }, { piece: { type: PieceType.QUEEN, color: topPlayer }, position: { x: 4, y: 8 } }, { piece: { type: PieceType.KING, color: topPlayer }, position: { x: 5, y: 8 } }, { piece: { type: PieceType.BISHOP, color: topPlayer }, position: { x: 6, y: 8 } }, { piece: { type: PieceType.KNIGHT, color: topPlayer }, position: { x: 7, y: 8 } }, { piece: { type: PieceType.ROOK, color: topPlayer }, position: { x: 8, y: 8 } },
-        { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 1, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 2, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 3, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 4, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 5, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 6, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 7, y: 7 } }, { piece: { type: PieceType.PAWN, color: topPlayer }, position: { x: 8, y: 7 } },
-        { position: { x: 1, y: 6 } }, { position: { x: 2, y: 6 } }, { position: { x: 3, y: 6 } }, { position: { x: 4, y: 6 } }, { position: { x: 5, y: 6 } }, { position: { x: 6, y: 6 } }, { position: { x: 7, y: 6 } }, { position: { x: 8, y: 6 } },
-        { position: { x: 1, y: 5 } }, { position: { x: 2, y: 5 } }, { position: { x: 3, y: 5 } }, { position: { x: 4, y: 5 } }, { position: { x: 5, y: 5 } }, { position: { x: 6, y: 5 } }, { position: { x: 7, y: 5 } }, { position: { x: 8, y: 5 } },
-        { position: { x: 1, y: 4 } }, { position: { x: 2, y: 4 } }, { position: { x: 3, y: 4 } }, { position: { x: 4, y: 4 } }, { position: { x: 5, y: 4 } }, { position: { x: 6, y: 4 } }, { position: { x: 7, y: 4 } }, { position: { x: 8, y: 4 } },
-        { position: { x: 1, y: 3 } }, { position: { x: 2, y: 3 } }, { position: { x: 3, y: 3 } }, { position: { x: 4, y: 3 } }, { position: { x: 5, y: 3 } }, { position: { x: 6, y: 3 } }, { position: { x: 7, y: 3 } }, { position: { x: 8, y: 3 } },
-        { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 1, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 2, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 3, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 4, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 5, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 6, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 7, y: 2 } }, { piece: { type: PieceType.PAWN, color: bottomPlayer }, position: { x: 8, y: 2 } },
-        { piece: { type: PieceType.ROOK, color: bottomPlayer }, position: { x: 1, y: 1 } }, { piece: { type: PieceType.KNIGHT, color: bottomPlayer }, position: { x: 2, y: 1 } }, { piece: { type: PieceType.BISHOP, color: bottomPlayer }, position: { x: 3, y: 1 } }, { piece: { type: PieceType.QUEEN, color: bottomPlayer }, position: { x: 4, y: 1 } }, { piece: { type: PieceType.KING, color: bottomPlayer }, position: { x: 5, y: 1 } }, { piece: { type: PieceType.BISHOP, color: bottomPlayer }, position: { x: 6, y: 1 } }, { piece: { type: PieceType.KNIGHT, color: bottomPlayer }, position: { x: 7, y: 1 } }, { piece: { type: PieceType.ROOK, color: bottomPlayer }, position: { x: 8, y: 1 } }
-
+        { pieceType: PieceType.ROOK, pieceColor: topPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer }, { pieceType: PieceType.QUEEN, pieceColor: topPlayer }, { pieceType: PieceType.KING, pieceColor: topPlayer }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer }, { pieceType: PieceType.ROOK, pieceColor: topPlayer },
+        { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer },
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer },
+        { pieceType: PieceType.ROOK, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer }, { pieceType: PieceType.KING, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer },
     ]
-
-    return { cells };
+    return { cells, bottomPlayer, legalMoves: [] };
 }
