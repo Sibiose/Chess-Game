@@ -21,7 +21,7 @@ export const PieceView = (props: { src: string, index: number }) => {
     return (
         <>
             <DragPreviewImage connect={preview} src={src} />
-            <img ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
+            <img  ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
         </>)
 
 }
