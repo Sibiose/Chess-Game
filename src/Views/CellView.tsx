@@ -11,14 +11,17 @@ export const CellView = (props: { index: number, game: ChessGame }) => {
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: 'piece',
-        drop: (item: { index: number }) => { game.move(item.index, index) },
+        drop: (item: { index: number }) => {
+            game.move(item.index, index);
+            game.switchPlayer()
+        },
         canDrop: (item: { index: number }) => game.canMove(item.index, index),
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop()
         }),
 
-    }),[game])
+    }), [game])
 
     return (
         <div style={isOver ? { backgroundColor: 'yellow' } : {}} ref={drop} className={(x + y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
