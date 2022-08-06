@@ -1,22 +1,31 @@
 import { useMemo, useState } from "react";
-import { canMove, computeMoves, move } from "./MovementLogic";
+import { canMove, move } from "./MovementLogic";
 import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
+/**
+ * An interface used for the boardState
+ */
 export interface BoardState {
     bottomPlayer: PlayerColors;
     cells: Cell[];
-    legalMoves: number[];
     currentPlayer: PlayerColors;
 }
 
+/**
+ * An interface used for the game object.
+ */
 export interface ChessGame extends BoardState {
     move: (from: number, to: number) => void
     canMove: (from: number, to: number) => boolean
-    computeMoves: (from: number) => void
     switchPlayer: () => void
 }
 
+/**
+ * A custom hook that generates the boardState and dispatch method.
+ * It creates and returns the Game object based on the current boardState.
+ * The game methods allow and register any state change
+ */
 export const useBoard = (bottomPlayer: PlayerColors) => {
     const [boardState, setBoardState] = useState<BoardState>(createDefaultBoard(bottomPlayer));
 
@@ -25,13 +34,26 @@ export const useBoard = (bottomPlayer: PlayerColors) => {
             ...boardState,
             move: (from: number, to: number) => setBoardState(move(boardState, from, to)),
             canMove: (from: number, to: number) => canMove(boardState, from, to),
-            computeMoves: (from: number) => setBoardState(computeMoves(boardState, from)),
             switchPlayer: () => setBoardState(switchPlayer(boardState))
         }
     }, [boardState, setBoardState])
     return game;
 }
 
+
+/**
+ * A method used to change the current player;
+ */
+export const switchPlayer = (boardState: BoardState) => {
+    let currentPlayer = boardState.currentPlayer === PlayerColors.LIGHT ? PlayerColors.DARK : PlayerColors.LIGHT;
+
+    return { ...boardState, currentPlayer }
+}
+
+/**
+ * A method that creates a default chess board based on the bottom player choice color
+ * @returns A default chess board with 64 cells, and 32 pieces placed at their legal positions.The default starting player is always light.
+ */
 export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
     let topPlayer = bottomPlayer === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK;
     let cells: Cell[] = [
@@ -44,11 +66,5 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
         { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer },
         { pieceType: PieceType.ROOK, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer }, { pieceType: PieceType.KING, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer },
     ]
-    return { cells, bottomPlayer, legalMoves: [], currentPlayer: PlayerColors.LIGHT };
-}
-
-export const switchPlayer = (boardState: BoardState) => {
-    let currentPlayer = boardState.currentPlayer === PlayerColors.LIGHT ? PlayerColors.DARK : PlayerColors.LIGHT;
-
-    return { ...boardState, currentPlayer }
+    return { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT };
 }
