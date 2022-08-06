@@ -1,5 +1,4 @@
 import { useDrag, DragPreviewImage } from "react-dnd";
-import { ChessGame } from "../Model/Board";
 
 export const PieceView = (props: { src: string, index: number }) => {
     let { src, index } = props;
@@ -11,17 +10,14 @@ export const PieceView = (props: { src: string, index: number }) => {
                 isDragging: !!monitor.isDragging(),
             }
         }
-
     }))
 
     let pieceStyle = { opacity: isDragging ? 0.2 : 1 }
 
-
-
     return (
         <>
             <DragPreviewImage connect={preview} src={src} />
-            <img  ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
+            <img ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
         </>)
 
 }
