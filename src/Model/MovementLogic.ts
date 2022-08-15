@@ -1,4 +1,4 @@
-import { BoardState } from "./Board";
+import { BoardState, getOppositePlayer } from "./Board";
 import { Cell, indexToPosition, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
@@ -21,21 +21,14 @@ export const canMove = (boardState: BoardState, from: number, to: number) => {
     let lastCell = boardState.cells[from];
     let cell = boardState.cells[to];
 
-    //Stops drop on a same color cell
     if (lastCell.pieceColor === cell.pieceColor)
         return false;
-    //Stops drop for the pieces that dont belong to the current player
     if (lastCell.pieceColor !== boardState.currentPlayer)
         return false;
 
-    //Creating a pseudoState that is one move ahead of the current boardState
     let pseudoState = pseudoMove(boardState, from, to);
 
-    //Checking if the pseudoState still contains a check in which case, it stops the player from using that move.
-    //This forbids movement that leave the king still in check
-    if (boardState.currentPlayer === PlayerColors.LIGHT && isLightInCheck(pseudoState))
-        return false;
-    if (boardState.currentPlayer === PlayerColors.DARK && isDarkInCheck(pseudoState))
+    if (isPlayerInCheck(pseudoState, boardState.currentPlayer))
         return false;
 
     return computePieceMoves(boardState, from, to);
@@ -50,7 +43,7 @@ export const pseudoMove = (boardState: BoardState, from: number, to: number) => 
     let cells = boardState.cells.map(cell => cell);
     cells[to] = { ...cells[from] };
     cells[from] = {};
-    let pseudoCurrent = boardState.currentPlayer === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK
+    let pseudoCurrent = getOppositePlayer(boardState.currentPlayer);
 
     return { ...pseudoState, cells, pseudoCurrent }
 
@@ -260,52 +253,21 @@ export const handleCheck = () => {
 }
 
 /**
- * A method that computes if the light King is in check
+ * A method that computes if the current player is in check
  */
-export const isLightInCheck = (boardState: BoardState) => {
+export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColors) => {
     let cells = boardState.cells.map(cell => cell);
     let result = false;
-    let lightKing = cells.indexOf(cells.filter(cell => cell.pieceColor === PlayerColors.LIGHT && cell.pieceType === PieceType.KING)[0]);
+    let oppositeColor = getOppositePlayer(playerColor);
+    let king = cells.indexOf(cells.filter(cell => cell.pieceColor === playerColor && cell.pieceType === PieceType.KING)[0]);
 
-    //Determining all the dark pieces position
-    let darkPieces = cells.map((cell, i) => {
-        return cell.pieceType !== undefined && cell.pieceColor === PlayerColors.DARK ? i : null;
-    }).filter(i => i !== null);
+    let oppositePieces = cells.map((cell, i) => {
+        return cell.pieceType !== undefined && cell.pieceColor === oppositeColor ? i : null;
+    }).filter(i => i);
 
-    //Computing moves for each dark Piece in order to see if the Light King is a target
-    darkPieces.forEach(piece => {
-        if (piece) {
-            if (result !== true) {
-                result = computePieceMoves(boardState, piece, lightKing);
-                return result;
-            }
-        }
+    oppositePieces.forEach(piece => {
+        if (!result)
+            result = computePieceMoves(boardState, piece as any, king);
     })
     return result;
 }
-
-/**
- * A method that computes if the dark King is in check
- */
-export const isDarkInCheck = (boardState: BoardState) => {
-    let cells = boardState.cells.map(cell => cell);
-    let result = false;
-    let darkKing = cells.indexOf(cells.filter(cell => cell.pieceColor === PlayerColors.DARK && cell.pieceType === PieceType.KING)[0]);
-
-    //Determining all the light pieces position
-    let lightPieces = cells.map((cell, i) => {
-        return cell.pieceType !== undefined && cell.pieceColor === PlayerColors.LIGHT ? i : null;
-    }).filter(i => i !== null);
-
-    //Computing moves for each dark Piece in order to see if the Dark King is a target
-    lightPieces.forEach(piece => {
-        if (piece) {
-            if (result !== true) {
-                result = computePieceMoves(boardState, piece, darkKing);
-                return result;
-            }
-        }
-    })
-    return result;
-}
-

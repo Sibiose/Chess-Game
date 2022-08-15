@@ -45,7 +45,7 @@ export const useBoard = (bottomPlayer: PlayerColors) => {
  * A method used to change the current player;
  */
 export const switchPlayer = (boardState: BoardState) => {
-    let currentPlayer = boardState.currentPlayer === PlayerColors.LIGHT ? PlayerColors.DARK : PlayerColors.LIGHT;
+    let currentPlayer = getOppositePlayer(boardState.currentPlayer);
 
     return { ...boardState, currentPlayer }
 }
@@ -55,7 +55,7 @@ export const switchPlayer = (boardState: BoardState) => {
  * @returns A default chess board with 64 cells, and 32 pieces placed at their legal positions.The default starting player is always light.
  */
 export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
-    let topPlayer = bottomPlayer === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK;
+    let topPlayer = getOppositePlayer(bottomPlayer)
     let cells: Cell[] = [
         { pieceType: PieceType.ROOK, pieceColor: topPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer }, { pieceType: PieceType.QUEEN, pieceColor: topPlayer }, { pieceType: PieceType.KING, pieceColor: topPlayer }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer }, { pieceType: PieceType.ROOK, pieceColor: topPlayer },
         { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer }, { pieceType: PieceType.PAWN, pieceColor: topPlayer },
@@ -67,4 +67,8 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
         { pieceType: PieceType.ROOK, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer }, { pieceType: PieceType.KING, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer },
     ]
     return { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT };
+}
+
+export const getOppositePlayer = (playerColor: PlayerColors) => {
+    return playerColor === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK;
 }
