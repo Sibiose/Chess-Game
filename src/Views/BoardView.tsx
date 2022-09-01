@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { CellView } from "./CellView";
-import { useBoard } from "../Model/Board";
-import { PlayerColors } from "../Model/PieceEnums";
+import { ChessGame} from "../Model/Board";
 
+export const BoardView = (props: { game: ChessGame }) => {
 
-export const BoardView = () => {
-
-    const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
-
-    const game = useBoard(bottomPlayer)
+    const { game } = props
 
     const cells = game.cells.map((_, i) => {
         return <CellView game={game} key={i} index={i} />
