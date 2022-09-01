@@ -13,7 +13,7 @@ export const CellView = (props: { index: number, game: ChessGame }) => {
         accept: 'piece',
         drop: (item: { index: number }) => {
             game.move(item.index, index);
-            game.switchPlayer()
+            game.switchPlayer();
         },
         canDrop: (item: { index: number }) => game.canMove(item.index, index),
         collect: (monitor) => ({

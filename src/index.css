@@ -16,22 +16,23 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #1a2530;
+  background-size: cover;
 }
 
 #chess-table {
-  background-color: orange;
-  margin: 1rem auto;
-  width: 40rem;
+  margin: 0.5rem;
+  width: 80vh;
   display: grid;
   grid-template-columns: repeat(8, 12.5%);
-  height: 40rem;
+  height: 80vh;
   border: 1px solid black;
 }
 
 .chess-cell {
   width: 100%;
   height: 100%;
-  background-color: #eeeed2;
+  background-color: #ECF0F1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,11 +40,30 @@ body {
 }
 
 .dark-chess-cell {
-  background-color: #769656;
+  background-color: #34495E;
 }
 
 .piece-img {
   position: absolute;
   height: 70%;
   width: 70%;
+}
+
+/*Player details view*/
+
+.player-details {
+  display: flex;
+  background-color: #34495E;
+  justify-content: space-between;
+  padding: 0.8rem;
+  align-items: center;
+  color: white;
+}
+
+.captured-pieces-container {
+  height: 1.7rem;
+}
+
+.captured-piece-icon {
+  width: 1.7rem;
 }
