@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PlayerColors } from "./Model/PieceEnums";
 import { ChessGame, useBoard } from "./Model/Board";
 import { PlayerDetailsView } from "./Views/PlayerDetailsView";
+import { BoardSideView } from "./Views/BoardSideView";
 
 
 function App() {
@@ -15,11 +16,17 @@ function App() {
 
   return (
     <div className="App">
-      <PlayerDetailsView game={game} isBottom={false} />
-      <DndProvider backend={HTML5Backend}>
-        <BoardView game={game} />
-      </DndProvider>
-      <PlayerDetailsView game={game} isBottom={true} />
+      <main>
+        <PlayerDetailsView game={game} isBottom={false} />
+        <DndProvider backend={HTML5Backend}>
+          <BoardView game={game} />
+        </DndProvider>
+        <PlayerDetailsView game={game} isBottom={true} />
+      </main>
+      <aside>
+        <BoardSideView />
+      </aside>
+
     </div>
   );
 }
