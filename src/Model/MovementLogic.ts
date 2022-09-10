@@ -8,8 +8,12 @@ import { PieceType, PlayerColors } from "./PieceEnums";
  */
 export const move = (boardState: BoardState, from: number, to: number) => {
 
+    if (boardState.cells[to].pieceColor)
+        boardState.capturedPieces.push({ ...boardState.cells[to] });
+
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
+
     return { ...boardState }
 }
 
