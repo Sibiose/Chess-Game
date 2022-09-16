@@ -9,8 +9,13 @@ import { PieceType, PlayerColors } from "./PieceEnums";
 export interface BoardState {
     bottomPlayer: PlayerColors;
     cells: Cell[];
-    currentPlayer: PlayerColors;
+    stateHistory: BoardState[];
     capturedPieces: Cell[];
+    currentPlayer: PlayerColors;
+    hasCapturedOnLastMove: boolean;
+    lastMovedPiece: Cell;
+    targetCellCode: string;
+    isInCheck: boolean;
 }
 
 /**
@@ -67,7 +72,9 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
         { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer },
         { pieceType: PieceType.ROOK, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer }, { pieceType: PieceType.KING, pieceColor: bottomPlayer }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer },
     ]
-    return { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [] };
+    let newState = { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [], stateHistory: [], hasCapturedOnLastMove: false, lastMovedPiece: emptyCell, targetCellCode: '', isInCheck: false }
+
+    return { ...newState, stateHistory: [{ ...newState }] };
 }
 
 export const getOppositePlayer = (playerColor: PlayerColors) => {

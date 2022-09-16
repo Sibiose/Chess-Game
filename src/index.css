@@ -120,3 +120,31 @@ body {
 .chat-btn {
   border-bottom-right-radius: 10px;
 }
+
+.move-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--background-color-dark);
+  background-color: var(--prm-color);
+  color:var(--secondary-color-light);
+}
+
+
+.action-icon {
+  width: 2rem;
+  height: 2rem;
+  filter: invert(99%) sepia(16%) saturate(280%) hue-rotate(167deg) brightness(99%) contrast(91%);
+}
+.check-icon{
+  filter: invert(73%) sepia(11%) saturate(5192%) hue-rotate(348deg) brightness(95%) contrast(101%);
+}
+
+.move-piece-icon {
+  width: 2rem;
+  height: 2rem;
+}
+.game-details{
+  overflow-y: scroll;
+}

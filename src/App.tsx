@@ -24,7 +24,7 @@ function App() {
         <PlayerDetailsView game={game} isBottom={true} />
       </main>
       <aside>
-        <BoardSideView />
+        <BoardSideView game={game} />
       </aside>
 
     </div>

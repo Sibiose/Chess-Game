@@ -1,5 +1,5 @@
 import { BoardState, getOppositePlayer } from "./Board";
-import { Cell, indexToPosition, positionToIndex } from "./Cell";
+import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
 /**
@@ -8,11 +8,19 @@ import { PieceType, PlayerColors } from "./PieceEnums";
  */
 export const move = (boardState: BoardState, from: number, to: number) => {
 
-    if (boardState.cells[to].pieceColor)
-        boardState.capturedPieces.push({ ...boardState.cells[to] });
+    let toCell = { ...boardState.cells[to] }
 
+    handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
+
+    if (boardState.cells[from].pieceType === PieceType.PAWN && checkPromote(to))
+        promotePawn(boardState.cells[from]);
+    boardState.lastMovedPiece = { ...boardState.cells[from] };
+    boardState.targetCellCode = indexToString(to);
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
+    boardState.isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+
+    boardState.stateHistory.push({ ...boardState })
 
     return { ...boardState }
 }
@@ -274,4 +282,24 @@ export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColor
             result = computePieceMoves(boardState, piece as any, king);
     })
     return result;
+}
+
+export const checkPromote = (index: number): boolean => {
+    if (indexToPosition(index)[1] === 1 || indexToPosition(index)[1] === 8)
+        return true
+    return false
+}
+
+export const promotePawn = (cell: Cell) => {
+    cell.pieceType = PieceType.QUEEN;
+}
+
+// export const checkHasMoved = (cell: Cell, boardState: BoardState): boolean => {
+    
+// }
+
+export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, hasCaptured: boolean) => {
+    if (hasCaptured)
+        boardState.capturedPieces.push({ ...capturedPiece })
+    boardState.hasCapturedOnLastMove = hasCaptured;
 }
