@@ -26,7 +26,7 @@ export const GameDetailsView = (props: { game: ChessGame }) => {
         if (boardState.lastMovedPiece.pieceType) {
             let imgSrc = `../../Pieces/${boardState.lastMovedPiece.pieceType}-${boardState.lastMovedPiece.pieceColor}.svg`
 
-            return <MoveItem key={i} id={i} target={boardState.targetCellCode} hasCaptured={boardState.hasCapturedOnLastMove} imgSrc={imgSrc} isInCheck={boardState.isInCheck} />
+            return <MoveItem key={i} id={i} target={boardState.targetCellCode} hasCaptured={boardState.hasCapturedOnLastMove} imgSrc={imgSrc} isInCheck={boardState.isInCheck} hasCastled={boardState.hasCastledOnLastMove} />
         }
     });
 
@@ -45,16 +45,23 @@ export const ChatView = () => {
     )
 }
 
-export const MoveItem = (props: { id: number, target: string, hasCaptured: boolean, imgSrc: string, isInCheck: boolean }) => {
-    let { id, hasCaptured, target, imgSrc, isInCheck } = props;
+export const MoveItem = (props: { id: number, target: string, hasCaptured: boolean, imgSrc: string, isInCheck: boolean, hasCastled: boolean }) => {
+    let { id, hasCaptured, target, imgSrc, isInCheck, hasCastled } = props;
+    let actionSrc = '../../move-arrow.svg';
+    if (isInCheck)
+        actionSrc = '../../move-check.svg';
+    else if (hasCaptured)
+        actionSrc = '../../move-attack.svg';
+    else if (hasCastled)
+        actionSrc = '../../move-castle.svg';
 
     return (
         <li className="move-item">
             <h3 className="move-id">{id}</h3>
             <div className="move-details">
-                <img className="move-piece-icon" src={imgSrc} alt=''/>
-                <img className={isInCheck ? "action-icon check-icon" : "action-icon" }
-                    src={isInCheck ? '../../move-check.svg' : hasCaptured ? '../../move-attack.svg' : '../../move-arrow.svg'} alt='' />
+                <img className="move-piece-icon" src={imgSrc} alt='' />
+                <img className={isInCheck ? "action-icon check-icon" : "action-icon"}
+                    src={actionSrc} alt='' />
             </div>
             <p className="move-target">{hasCaptured ? 'x' + target : target}</p>
 

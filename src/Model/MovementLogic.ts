@@ -7,10 +7,10 @@ import { PieceType, PlayerColors } from "./PieceEnums";
  * @returns A new Board State
  */
 export const move = (boardState: BoardState, from: number, to: number) => {
-
     let toCell = { ...boardState.cells[to] }
-    handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
 
+    handleCastle(boardState, from, to);
+    handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
     if (checkPromote(boardState.cells[from].pieceType, to))
         promotePawn(boardState.cells[from]);
 
@@ -31,6 +31,9 @@ export const move = (boardState: BoardState, from: number, to: number) => {
  * @returns A boolean response that will dictate whether the dragged element can be dropped there.
  */
 export const canMove = (boardState: BoardState, from: number, to: number) => {
+    let [x1, y1] = indexToPosition(from);
+    let [x2, y2] = indexToPosition(to);
+    let dx = Math.abs(x2 - x1);
     let lastCell = boardState.cells[from];
     let cell = boardState.cells[to];
 
@@ -43,6 +46,16 @@ export const canMove = (boardState: BoardState, from: number, to: number) => {
 
     if (isPlayerInCheck(pseudoState, boardState.currentPlayer))
         return false;
+
+    //Not letting king cross a check whilst castling
+    if (lastCell.pieceType === PieceType.KING && dx > 1) {
+        for (let i = 1; i <= dx; i++) {
+            pseudoState = pseudoMove(boardState, from, x1 < x2 ? from + i : from - i)
+            if (isPlayerInCheck(pseudoState, boardState.currentPlayer)) {
+                return false;
+            }
+        }
+    }
 
     return computePieceMoves(boardState, from, to);
 }
@@ -101,29 +114,22 @@ export const computeKingMoves = (boardState: BoardState, from: number, to: numbe
     let [x2, y2] = indexToPosition(to);
     let canCastleLeft: boolean = true;
     let canCastleRight: boolean = true;
-    for (let i = 1; i <= 3; i++) {
-        if (boardState.cells[from - i].pieceType !== undefined) {
-            canCastleLeft = false;
-            break;
-        }
-    }
-    for (let i = 1; i <= 2; i++) {
-        if (boardState.cells[from + i].pieceType !== undefined) {
-            canCastleRight = false;
-            break;
-        }
-    }
+    let moveToRight: boolean = x1 < x2;
     const dx = Math.abs(x2 - x1);
     const dy = Math.abs(y2 - y1);
 
-    if (!boardState.cells[from].wasMoved) {
-        if (!boardState.cells[from - 4].wasMoved && canCastleLeft && to === from - 3) {
-            return true
-        }
+    if (!boardState.cells[from].wasMoved && !boardState.isInCheck) {
 
-        if (!boardState.cells[from + 3].wasMoved && canCastleRight && to === from + 2) {
-            return true
+        for (let i = 1; i <= dx; i++) {
+            if (boardState.cells[moveToRight ? from + i : from - i]?.pieceType !== undefined) {
+                moveToRight ? canCastleRight = false : canCastleLeft = false;
+                break;
+            }
         }
+        if (!boardState.cells[from - 4]?.wasMoved && canCastleLeft && to === from - 3)
+            return true
+        if (!boardState.cells[from + 3]?.wasMoved && canCastleRight && to === from + 2)
+            return true
     }
 
     if (dx < 2 && dy < 2)
@@ -316,6 +322,19 @@ export const checkPromote = (pieceType: PieceType | undefined, index: number): b
 
 export const promotePawn = (cell: Cell) => {
     cell.pieceType = PieceType.QUEEN;
+}
+
+export const handleCastle = (boardState: BoardState, from: number, to: number) => {
+    const dx = Math.abs(indexToPosition(from)[0] - indexToPosition(to)[0]);
+    if (boardState.cells[from].pieceType === PieceType.KING && dx > 1) {
+
+        let castleLeft = from < to ? true : false;
+        let rook = boardState.cells[castleLeft ? from + 3 : from - 4];
+        boardState.cells[castleLeft ? from + 1 : from - 2] = { ...rook, wasMoved: true };
+        boardState.cells[castleLeft ? from + 3 : from - 4] = {};
+        boardState.hasCastledOnLastMove = true;
+    } else
+        boardState.hasCastledOnLastMove = false;
 }
 
 export const checkHasMovedLastTurn = (cell: Cell, boardState: BoardState): boolean => {
