@@ -1,5 +1,5 @@
 import { BoardState, getOppositePlayer } from "./Board";
-import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
+import { Cell, emptyCell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
 /**
@@ -9,13 +9,14 @@ import { PieceType, PlayerColors } from "./PieceEnums";
 export const move = (boardState: BoardState, from: number, to: number) => {
 
     let toCell = { ...boardState.cells[to] }
-
     handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
 
-    if (boardState.cells[from].pieceType === PieceType.PAWN && checkPromote(to))
+    if (checkPromote(boardState.cells[from].pieceType, to))
         promotePawn(boardState.cells[from]);
+
     boardState.lastMovedPiece = { ...boardState.cells[from] };
     boardState.targetCellCode = indexToString(to);
+    boardState.cells[from].wasMoved = true;
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
     boardState.isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
@@ -71,7 +72,7 @@ export const computePieceMoves = (boardState: BoardState, from: number, to: numb
 
     switch (lastCell.pieceType) {
         case PieceType.KING:
-            canMove = computeKingMoves(from, to);
+            canMove = computeKingMoves(boardState, from, to);
             break;
         case PieceType.KNIGHT:
             canMove = computeKnightMoves(from, to);
@@ -95,12 +96,35 @@ export const computePieceMoves = (boardState: BoardState, from: number, to: numb
 /**
  * Computes legal moves if the piece type is king
  */
-export const computeKingMoves = (from: number, to: number) => {
-    let [x, y] = indexToPosition(from);
+export const computeKingMoves = (boardState: BoardState, from: number, to: number) => {
+    let [x1, y1] = indexToPosition(from);
     let [x2, y2] = indexToPosition(to);
+    let canCastleLeft: boolean = true;
+    let canCastleRight: boolean = true;
+    for (let i = 1; i <= 3; i++) {
+        if (boardState.cells[from - i].pieceType !== undefined) {
+            canCastleLeft = false;
+            break;
+        }
+    }
+    for (let i = 1; i <= 2; i++) {
+        if (boardState.cells[from + i].pieceType !== undefined) {
+            canCastleRight = false;
+            break;
+        }
+    }
+    const dx = Math.abs(x2 - x1);
+    const dy = Math.abs(y2 - y1);
 
-    const dx = Math.abs(x2 - x);
-    const dy = Math.abs(y2 - y);
+    if (!boardState.cells[from].wasMoved) {
+        if (!boardState.cells[from - 4].wasMoved && canCastleLeft && to === from - 3) {
+            return true
+        }
+
+        if (!boardState.cells[from + 3].wasMoved && canCastleRight && to === from + 2) {
+            return true
+        }
+    }
 
     if (dx < 2 && dy < 2)
         return true
@@ -284,8 +308,8 @@ export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColor
     return result;
 }
 
-export const checkPromote = (index: number): boolean => {
-    if (indexToPosition(index)[1] === 1 || indexToPosition(index)[1] === 8)
+export const checkPromote = (pieceType: PieceType | undefined, index: number): boolean => {
+    if (pieceType === PieceType.PAWN && (indexToPosition(index)[1] === 1 || indexToPosition(index)[1] === 8))
         return true
     return false
 }
@@ -294,9 +318,9 @@ export const promotePawn = (cell: Cell) => {
     cell.pieceType = PieceType.QUEEN;
 }
 
-// export const checkHasMoved = (cell: Cell, boardState: BoardState): boolean => {
-    
-// }
+export const checkHasMovedLastTurn = (cell: Cell, boardState: BoardState): boolean => {
+    return boardState.stateHistory[boardState.stateHistory.length - 1].lastMovedPiece.id === cell.id;
+}
 
 export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, hasCaptured: boolean) => {
     if (hasCaptured)

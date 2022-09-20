@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { ChessGame } from "../Model/Board";
-import { Cell, indexToString, positionToString, } from "../Model/Cell";
-
 
 export const BoardSideView = (props: { game: ChessGame }) => {
     const { game } = props
@@ -54,9 +52,9 @@ export const MoveItem = (props: { id: number, target: string, hasCaptured: boole
         <li className="move-item">
             <h3 className="move-id">{id}</h3>
             <div className="move-details">
-                <img className="move-piece-icon" src={imgSrc} />
-                <img className={isInCheck ? "action-icon check-icon" : "action-icon"}
-                    src={isInCheck ? '../../move-check.svg' : hasCaptured ? '../../move-attack.svg' : '../../move-arrow.svg'} />
+                <img className="move-piece-icon" src={imgSrc} alt=''/>
+                <img className={isInCheck ? "action-icon check-icon" : "action-icon" }
+                    src={isInCheck ? '../../move-check.svg' : hasCaptured ? '../../move-attack.svg' : '../../move-arrow.svg'} alt='' />
             </div>
             <p className="move-target">{hasCaptured ? 'x' + target : target}</p>
 

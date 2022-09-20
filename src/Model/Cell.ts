@@ -4,6 +4,8 @@ import { PieceType, PlayerColors } from "./PieceEnums";
 export interface Cell {
     pieceColor?: PlayerColors
     pieceType?: PieceType | undefined
+    id?: number
+    wasMoved?: boolean
 }
 
 // Empty cell constant
