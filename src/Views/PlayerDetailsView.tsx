@@ -4,9 +4,9 @@ export const PlayerDetailsView = (props: { game: ChessGame, isBottom: boolean })
 
     const { game, isBottom } = props;
     let playerColor = isBottom ? game.bottomPlayer : getOppositePlayer(game.bottomPlayer);
-    let capturedPieces = game.capturedPieces.filter(cell => cell.pieceColor !== playerColor).map(cell => {
+    let capturedPieces = game.capturedPieces.filter(cell => cell.pieceColor !== playerColor).map((cell, i) => {
         let imgSrc = `../../Pieces/${cell.pieceType}-${cell.pieceColor}.svg`
-        return <img className="captured-piece-icon" src={imgSrc} />
+        return <img key={i} className="captured-piece-icon" src={imgSrc} />
     });
 
 
