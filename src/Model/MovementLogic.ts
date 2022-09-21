@@ -7,7 +7,9 @@ import { PieceType, PlayerColors } from "./PieceEnums";
  * @returns A new Board State
  */
 export const move = (boardState: BoardState, from: number, to: number) => {
+    let fromCell = { ...boardState.cells[from] };
     let toCell = { ...boardState.cells[to] }
+    const dx = Math.abs(indexToPosition(from)[0] - indexToPosition(to)[0]);
 
     handleCastle(boardState, from, to);
     handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
@@ -19,9 +21,21 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.cells[from].wasMoved = true;
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
-    boardState.isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+    let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+    boardState.isInCheck = isInCheck;
 
     boardState.stateHistory.push({ ...boardState })
+
+    //Playing sound depending on case
+    let sound: string = 'Move'
+    if (isInCheck)
+        sound = 'Check'
+    else if (fromCell.pieceType === PieceType.KING && dx > 1)
+        sound = 'Castle'
+    else if (toCell?.pieceType)
+        sound = 'Capture'
+
+    playSound(sound);
 
     return { ...boardState }
 }
@@ -327,7 +341,6 @@ export const promotePawn = (cell: Cell) => {
 export const handleCastle = (boardState: BoardState, from: number, to: number) => {
     const dx = Math.abs(indexToPosition(from)[0] - indexToPosition(to)[0]);
     if (boardState.cells[from].pieceType === PieceType.KING && dx > 1) {
-
         let castleLeft = from < to ? true : false;
         let rook = boardState.cells[castleLeft ? from + 3 : from - 4];
         boardState.cells[castleLeft ? from + 1 : from - 2] = { ...rook, wasMoved: true };
@@ -342,7 +355,14 @@ export const checkHasMovedLastTurn = (cell: Cell, boardState: BoardState): boole
 }
 
 export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, hasCaptured: boolean) => {
-    if (hasCaptured)
+    if (hasCaptured) {
         boardState.capturedPieces.push({ ...capturedPiece })
+    }
+
     boardState.hasCapturedOnLastMove = hasCaptured;
+}
+
+export const playSound = (soundType: string) => {
+    let sound = new Audio(`./SFX/${soundType}.mp3`)
+    sound.play();
 }
