@@ -140,6 +140,9 @@ body {
 .check-icon{
   filter: invert(73%) sepia(11%) saturate(5192%) hue-rotate(348deg) brightness(95%) contrast(101%);
 }
+.checkmate-icon{
+  filter: invert(30%) sepia(54%) saturate(2705%) hue-rotate(344deg) brightness(79%) contrast(88%);
+}
 
 .move-piece-icon {
   width: 2rem;
