@@ -22,13 +22,21 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
     let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+    let hasLegalMoves = detectHasLegalMoves(boardState, getOppositePlayer(boardState.currentPlayer));
+    let isInMate = isInCheck && hasLegalMoves === false;
+    let isInStaleMate = !isInCheck && hasLegalMoves === false;
+
     boardState.isInCheck = isInCheck;
+    boardState.isInMate = isInMate;
+    boardState.isInStaleMate = isInStaleMate;
 
     boardState.stateHistory.push({ ...boardState })
-
+  
     //Playing sound depending on case
     let sound: string = 'Move'
-    if (isInCheck)
+    if (isInMate)
+        sound = 'CheckMate'
+    else if (isInCheck)
         sound = 'Check'
     else if (fromCell.pieceType === PieceType.KING && dx > 1)
         sound = 'Castle'
@@ -326,6 +334,24 @@ export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColor
             result = computePieceMoves(boardState, piece as any, king);
     })
     return result;
+}
+
+export const detectHasLegalMoves = (boardState: BoardState, playerColor: PlayerColors) => {
+    let playerCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor === playerColor ? i : null).filter(i => i);
+    let possibleCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor !== playerColor ? i : null).filter(i => i);
+    let hasLegalMoves = false;
+
+    //Checks all legal moves for a specific playerColor
+    playerCellsIndexes.forEach(cellIndex => {
+        if (!hasLegalMoves)
+            possibleCellsIndexes.forEach(pCellIndex => {
+                if (!hasLegalMoves)
+                    //Forcing the turn switch for the legal moves check
+                    hasLegalMoves = canMove({ ...boardState, currentPlayer: playerColor }, cellIndex as any, pCellIndex as any)
+            });
+    });
+
+    return hasLegalMoves
 }
 
 export const checkPromote = (pieceType: PieceType | undefined, index: number): boolean => {
