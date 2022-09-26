@@ -1,8 +1,21 @@
-import io from 'socket.io-client';
+import { useMemo } from 'react';
+import io, { Socket } from 'socket.io-client';
 
-const PORT: string = "http://localhost:7000"
+export const useChessServer = () => {
+    const PORT: string = "http://localhost:7000"
+    const socket = io(PORT);
 
-export const socket = io(PORT);
+    let chessServer = useMemo(() => {
+        return {
+            onPlayerMove: (from: number, to: number) => onPlayerMove(socket, from, to),
+        }
+    }, [socket])
+    return chessServer;
+}
+
+export const onPlayerMove = (socket: Socket, from: number, to: number) => {
+    socket.emit('playerMove', { from, to })
+}
 
 //SendMessage
 
@@ -21,7 +34,7 @@ export const socket = io(PORT);
 
 //Change BoardState to BoardStateSnapshot
 
-//Add stateHistory:BoardStateSnapshot[] to BoardState 
+//Add stateHistory:BoardStateSnapshot[] to BoardState
 
 
 //    socket.on("receivedState", (boardState) => {
