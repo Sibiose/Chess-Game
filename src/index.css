@@ -10,6 +10,7 @@
   --prm-color: #34495E;
   --background-color-dark: #1a2530;
   --secondary-color-light: #ECF0F1;
+  --prm-color-transparent: #58738e;
 }
 
 .App {
@@ -128,7 +129,7 @@ body {
   align-items: center;
   border-bottom: 1px solid var(--background-color-dark);
   background-color: var(--prm-color);
-  color:var(--secondary-color-light);
+  color: var(--secondary-color-light);
 }
 
 
@@ -137,10 +138,12 @@ body {
   height: 2rem;
   filter: invert(99%) sepia(16%) saturate(280%) hue-rotate(167deg) brightness(99%) contrast(91%);
 }
-.check-icon{
+
+.check-icon {
   filter: invert(73%) sepia(11%) saturate(5192%) hue-rotate(348deg) brightness(95%) contrast(101%);
 }
-.checkmate-icon{
+
+.checkmate-icon {
   filter: invert(30%) sepia(54%) saturate(2705%) hue-rotate(344deg) brightness(79%) contrast(88%);
 }
 
@@ -148,6 +151,81 @@ body {
   width: 2rem;
   height: 2rem;
 }
-.game-details{
+
+.game-details {
   overflow-y: scroll;
+}
+
+.game-details::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-input-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.chat-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chat-input-wrapper input {
+  padding: 0.5rem;
+  border-bottom-left-radius: 15px;
+  border-top-left-radius: 15px;
+  width: 90%;
+  border: 1px solid var(--background-color-dark)
+}
+
+.messages-list {
+  overflow-y: scroll;
+  height: 90%;
+  padding-left: 0;
+}
+
+.messages-list::-webkit-scrollbar {
+  display: none;
+}
+
+.message-item {
+  list-style: none;
+  padding: 0.3rem;
+  color: var(--secondary-color-light);
+  font-weight: 500;
+  font-size: 1.2rem;
+  background-color: var(--prm-color-transparent);
+  min-width: 5rem;
+  width: fit-content;
+  border-radius: 15px;
+  margin-bottom:7px;
+}
+
+.chat-input-wrapper button {
+  border: 1px solid var(--background-color-dark);
+  background-color: var(--background-color-dark);
+  color: white;
+  cursor: pointer;
+}
+
+#requestUsernameView{
+  padding:2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.username-input{
+padding:0.8rem;
+border:1px solid var(--background-color-dark);
+border-radius: 10px;
+font-size:1.5rem;
+color:var(--background-color-dark);
+}
+
+.username-header{
+margin-bottom: 2rem;
+color: var(--secondary-color-light);
+font-size:2.5rem;
 }
