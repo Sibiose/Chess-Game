@@ -6,10 +6,9 @@ import { PieceType, PlayerColors } from "./PieceEnums";
 /**
  * An interface used for the boardState
  */
-export interface BoardState {
+export interface BoardStateSnapshot {
     bottomPlayer: PlayerColors;
     cells: Cell[];
-    stateHistory: BoardState[];
     capturedPieces: Cell[];
     currentPlayer: PlayerColors;
     hasCapturedOnLastMove: boolean;
@@ -19,6 +18,10 @@ export interface BoardState {
     isInMate: boolean;
     isInStaleMate: boolean;
     hasCastledOnLastMove: boolean;
+}
+
+export interface BoardState extends BoardStateSnapshot {
+    stateHistory: BoardStateSnapshot[];
 }
 
 /**

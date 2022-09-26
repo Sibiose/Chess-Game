@@ -1,5 +1,6 @@
+import { socket } from "../Server_API/ChessServer";
 import { BoardState, getOppositePlayer } from "./Board";
-import { Cell, emptyCell, indexToPosition, indexToString, positionToIndex } from "./Cell";
+import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
 /**
@@ -29,9 +30,10 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.isInCheck = isInCheck;
     boardState.isInMate = isInMate;
     boardState.isInStaleMate = isInStaleMate;
+    let { stateHistory, ...boardStateSnapshot } = boardState;
 
-    boardState.stateHistory.push({ ...boardState })
-  
+    boardState.stateHistory.push({ ...boardStateSnapshot })
+
     //Playing sound depending on case
     let sound: string = 'Move'
     if (isInMate)
