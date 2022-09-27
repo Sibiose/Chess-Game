@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3004"]
+        origin: ["http://localhost:3005"]
     }
 })
 
@@ -40,12 +40,6 @@ io.on('connection', socket => {
 
     socket.on('sendMessage', (message) => {
         socket.broadcast.emit("receivedMessage", message);
-    });
-
-    socket.on('playerMove', (boardState, from, to) => {
-        let newBoardState = onPlayerMove(boardState, from, to)
-
-        socket.to('1').emit("receivedState", newBoardState);
     });
 
 })

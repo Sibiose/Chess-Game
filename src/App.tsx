@@ -7,16 +7,22 @@ import { ChessGame, useBoard } from "./Model/Board";
 import { PlayerDetailsView } from "./Views/PlayerDetailsView";
 import { BoardSideView } from "./Views/BoardSideView";
 import { RequestUsernameView } from "./Views/RequestUsernameView";
+import { Server, useServer } from "./api/Server";
 
 
 function App() {
   const [username, setUsername] = useState<string>('');
   const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
-  
-  const game: ChessGame = useBoard(bottomPlayer)
+
+  const game: ChessGame = useBoard(bottomPlayer);
+
+  const server: Server = useServer();
+
+  const status = server.connected ? <div>CONNECTED</div> : <div>NOT CONNECTED</div>
 
   return (
     <div className="App">
+      {status}
       {username === "" ? <RequestUsernameView setUsername={setUsername} /> :
         <><main>
           <PlayerDetailsView game={game} isBottom={false} />
@@ -26,7 +32,7 @@ function App() {
           <PlayerDetailsView game={game} isBottom={true} />
         </main>
           <aside>
-            <BoardSideView game={game} />
+            <BoardSideView game={game} server={server} />
           </aside>
         </>
       }

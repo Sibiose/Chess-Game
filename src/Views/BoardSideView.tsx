@@ -1,13 +1,14 @@
 import { useState } from "react";
+import { Message, Messages, onSendMessage, Server } from "../api/Server";
 import { ChessGame } from "../Model/Board";
-import { socket } from "../Server_API/ChessServer"
+
 
 let hidden = {
     display: 'none'
 }
 
-export const BoardSideView = (props: { game: ChessGame }) => {
-    const { game } = props
+export const BoardSideView = (props: { game: ChessGame, server: Server }) => {
+    const { game, server } = props
     const handleChat = (newState: boolean) => {
         setchatState(newState);
     }
@@ -16,7 +17,7 @@ export const BoardSideView = (props: { game: ChessGame }) => {
 
     return (
         <div className="board-side-wrapper">
-            <ChatView style={chatState ? {} : hidden} />
+            <ChatView style={chatState ? {} : hidden} messages={server.messages} />
             <GameDetailsView game={game} style={chatState ? hidden : {}} />
             <div className="details-buttons">
                 <button className="game-details-btn" onClick={() => handleChat(false)}>Game details</button>
@@ -43,30 +44,22 @@ export const GameDetailsView = (props: { style: {}, game: ChessGame }) => {
     )
 }
 
-export const ChatView = (props: { style: {} }) => {
-
+export const ChatView = (props: { style: {}, messages: Messages }) => {
+    let { style, messages } = props;
     const [message, setMessage] = useState<string>("");
-    const [messages, setMessages] = useState<string[]>([]);
 
     const sendMessage = (message: string) => {
-        if (message !== "") {
-            socket.emit('sendMessage', message);
-            setMessages([...messages, message])
-        }
+        onSendMessage({ message });
     }
 
-    socket.on("receivedMessage", (message) => {
-        setMessages([...messages, message]);
-    });
-
     return (
-        <div className="chat-screen" style={props.style}>
-            <ul className="messages-list">{messages.map((message, i) => <li className="message-item" key={i}>{message}</li>)}</ul>
+        <div className="chat-screen" style={style}>
+            <ul className="messages-list">{messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul>
 
             <div className='chat-input-wrapper'>
 
                 <input type="text" onChange={(e) => { setMessage(e.target.value ?? "") }} />
-                <button onClick={() => sendMessage(message)}>Send</button>
+                <button onClick={() => { sendMessage(message) }}>Send</button>
             </div>
         </div>
     )
