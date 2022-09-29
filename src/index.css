@@ -9,8 +9,10 @@
   --table-width: 80%;
   --prm-color: #34495E;
   --background-color-dark: #1a2530;
+  --background-color-medium: #2C3E50;
   --secondary-color-light: #ECF0F1;
   --prm-color-transparent: #58738e;
+  --cta:#E67E22;
 }
 
 .App {
@@ -228,4 +230,103 @@ color:var(--background-color-dark);
 margin-bottom: 2rem;
 color: var(--secondary-color-light);
 font-size:2.5rem;
+}
+
+#lobby{
+  position: relative;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  padding:3rem;
+  color:var(--secondary-color-light);
+  
+  width:100vw;
+  height:100vh;
+
+}
+
+.lobby-header-wrapper{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  background-color:var(--prm-color);
+  width:100%;
+  padding:1rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  
+}
+
+.lobby-title{
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+.lobby-desc{
+  font-size:1.3rem;
+}
+
+.room-list{
+  display:grid;
+  width:100%;
+  background-color:var(--background-color-dark);
+  border-radius: 15px;
+  padding:2rem;
+  grid-template-columns:repeat(6, 1fr);
+  column-gap: 10px;
+  row-gap: 20px;
+
+}
+
+.room-card{
+  background-color: var(--prm-color);
+  width:200px;
+  height:230px;
+  border-radius: 15px;
+  padding:1rem;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.room-details{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.join-room-btn{
+  padding:0.5rem;
+  border-radius: 10px;
+  width:70%;
+  border: none;
+  cursor: pointer;
+  background-color: var(--cta);
+  color:var(--secondary-color-light);
+  font-weight: 600;
+}
+
+.join-room-btn:hover{
+  background-color: #F39C12;
+}
+
+.create-room-btn{
+  padding:0.8rem;
+  border-radius: 10px;
+  width:30%;
+  border: none;
+  cursor: pointer;
+  background-color: var(--cta);
+  color:var(--secondary-color-light);
+  font-weight: 600;
+  font-size:1.3rem; 
+}
+.room-editor{
+  position: absolute;
+  left:50%;
+  top:50%;
+  transform: translate(-50%, -50%);
+  background-color: orange;
+  width:50%;
+  height:50%;
 }

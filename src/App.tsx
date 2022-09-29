@@ -8,6 +8,7 @@ import { PlayerDetailsView } from "./Views/PlayerDetailsView";
 import { BoardSideView } from "./Views/BoardSideView";
 import { RequestUsernameView } from "./Views/RequestUsernameView";
 import { Server, useServer } from "./api/Server";
+import { LobbyView } from "./Views/LobbyView";
 
 
 function App() {
@@ -18,12 +19,12 @@ function App() {
 
   const server: Server = useServer();
 
-  const status = server.connected ? <div>CONNECTED</div> : <div>NOT CONNECTED</div>
+  const status = server.connected ? <div style={{color:'green'}}>CONNECTED</div> : <div style={{color:'red'}}>NOT CONNECTED</div>
 
   return (
     <div className="App">
-      {status}
-      {username === "" ? <RequestUsernameView setUsername={setUsername} /> :
+      {/* {status} */}
+      {/* {username === "" ? <RequestUsernameView setUsername={setUsername} /> :
         <><main>
           <PlayerDetailsView game={game} isBottom={false} />
           <DndProvider backend={HTML5Backend}>
@@ -35,7 +36,8 @@ function App() {
             <BoardSideView game={game} server={server} />
           </aside>
         </>
-      }
+      } */}
+      <LobbyView/>
     </div>
   );
 }

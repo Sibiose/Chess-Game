@@ -20,6 +20,8 @@ export interface Server {
     messages: Messages
 }
 
+
+
 const ServerContext = createContext<Server>({ connected: false, messages: { messages: [] } })
 
 export const useServer = () => {

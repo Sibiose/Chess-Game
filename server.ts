@@ -6,13 +6,14 @@ import cors from 'cors'
 import { ChessGame, createDefaultBoard } from './src/Model/Board';
 import { PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
+import { Message, Messages } from './src/api/Server';
 app.use(cors());
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3005"]
+        origin: ["http://localhost:3000"]
     }
 })
 
@@ -39,7 +40,15 @@ export const onPlayerMove = (boardState: ChessGame, from: number, to: number): C
 io.on('connection', socket => {
 
     socket.on('sendMessage', (message) => {
-        socket.broadcast.emit("receivedMessage", message);
+        updateMessages(message);
+        socket.broadcast.emit("receivedMessage", messages);
     });
 
 })
+
+let messages: Messages = { messages: [] }
+
+export const updateMessages = (message: Message) => {
+    messages.messages.push(message);
+    message.timestamp = new Date().getDate();
+}
