@@ -7,7 +7,8 @@ import { ChessGame, useBoard } from "./Model/Board";
 import { PlayerDetailsView } from "./Views/PlayerDetailsView";
 import { BoardSideView } from "./Views/BoardSideView";
 import { RequestUsernameView } from "./Views/RequestUsernameView";
-import { Server, useServer } from "./api/Server";
+import { useServer } from "./api/Server";
+import { Server } from "./api/Server.dto"
 import { LobbyView } from "./Views/LobbyView";
 
 
@@ -18,26 +19,26 @@ function App() {
   const game: ChessGame = useBoard(bottomPlayer);
 
   const server: Server = useServer();
-
-  const status = server.connected ? <div style={{color:'green'}}>CONNECTED</div> : <div style={{color:'red'}}>NOT CONNECTED</div>
+  
+  const status = server.connected ? <div style={{ color: 'green' }}>CONNECTED</div> : <div style={{ color: 'red' }}>NOT CONNECTED</div>
 
   return (
     <div className="App">
       {/* {status} */}
-      {/* {username === "" ? <RequestUsernameView setUsername={setUsername} /> :
-        <><main>
-          <PlayerDetailsView game={game} isBottom={false} />
-          <DndProvider backend={HTML5Backend}>
-            <BoardView game={game} />
-          </DndProvider>
-          <PlayerDetailsView game={game} isBottom={true} />
-        </main>
-          <aside>
-            <BoardSideView game={game} server={server} />
-          </aside>
-        </>
-      } */}
-      <LobbyView/>
+      {username === "" ? <RequestUsernameView setUsername={setUsername} /> : null
+        // <><main>
+        //   <PlayerDetailsView game={game} isBottom={false} />
+        //   <DndProvider backend={HTML5Backend}>
+        //     <BoardView game={game} />
+        //   </DndProvider>
+        //   <PlayerDetailsView game={game} isBottom={true} />
+        // </main>
+        //   <aside>
+        //     <BoardSideView game={game} server={server} />
+        //   </aside>
+        // </>
+      }
+      {username !== "" ? <LobbyView rooms={server.rooms.rooms} /> : null}
     </div>
   );
 }

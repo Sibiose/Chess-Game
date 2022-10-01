@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Message, Messages, onSendMessage, Server } from "../api/Server";
+import { onSendMessage, } from "../api/Server";
+import { Server, Message, Messages } from "../api/Server.dto"
 import { ChessGame } from "../Model/Board";
 
 
-let hidden = {
+export let displayNone = {
     display: 'none'
 }
 
@@ -17,8 +18,8 @@ export const BoardSideView = (props: { game: ChessGame, server: Server }) => {
 
     return (
         <div className="board-side-wrapper">
-            <ChatView style={chatState ? {} : hidden} messages={server.messages} />
-            <GameDetailsView game={game} style={chatState ? hidden : {}} />
+            <ChatView style={chatState ? {} : displayNone} />
+            <GameDetailsView game={game} style={chatState ? displayNone : {}} />
             <div className="details-buttons">
                 <button className="game-details-btn" onClick={() => handleChat(false)}>Game details</button>
                 <button className="chat-btn" onClick={() => handleChat(true)}>Chat</button>
@@ -44,17 +45,18 @@ export const GameDetailsView = (props: { style: {}, game: ChessGame }) => {
     )
 }
 
-export const ChatView = (props: { style: {}, messages: Messages }) => {
-    let { style, messages } = props;
+export const ChatView = (props: { style: {} }) => {
+    let { style } = props;
     const [message, setMessage] = useState<string>("");
 
     const sendMessage = (message: string) => {
-        onSendMessage({ message });
+        if (message && message !== "")
+            onSendMessage({ message });
     }
 
     return (
         <div className="chat-screen" style={style}>
-            <ul className="messages-list">{messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul>
+            {/* <ul className="messages-list">{messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul> */}
 
             <div className='chat-input-wrapper'>
 
