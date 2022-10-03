@@ -13,7 +13,8 @@
   --secondary-color-light: #ECF0F1;
   --prm-color-transparent: #58738e;
   --cta: #E67E22;
-  --danger:#E74C3C;
+  --danger: #E74C3C;
+  --disabled: #7F8C8D;
 }
 
 .App {
@@ -268,7 +269,7 @@ body {
 
 .room-list {
   display: grid;
-  width: 100%;
+  width: 85%;
   background-color: var(--background-color-dark);
   border-radius: 15px;
   padding: 2rem;
@@ -411,6 +412,72 @@ body {
   width: 70%;
 }
 
-.input-error{
-  color:var(--danger)
+.input-error {
+  color: var(--danger)
+}
+
+.lobby-main-section {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.players-wrapper {
+  width: 14%;
+  background-color: var(--prm-color);
+  border-radius: 10px;
+  height: 30rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.players-list::-webkit-scrollbar {
+  display: none;
+}
+
+.players-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  overflow-y: scroll;
+}
+
+.players-list-title {
+  border-bottom: 2px solid var(--background-color-dark);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.player-list-item {
+  display: flex;
+  font-size: 1.3rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.username-error {
+  margin-top: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.connected-tab {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.status-bubble {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 1rem;
+  border-radius: 50%;
+}
+
+.disabled-btn,
+.disabled-btn:hover {
+  background-color: var(--disabled);
 }

@@ -41,33 +41,60 @@ io.on('connection', socket => {
     //Sending the current serverState once the socket connects to the server
     io.emit('receivedServerState', serverState);
 
-    socket.on('chooseUsername', (username: string) => {
-        updatePlayers(username, socket.id)
-        io.emit('receivedPlayers', serverState.players);
+    socket.on('createNewPlayer', (username: string) => {
+        addPlayer(username, socket.id)
+        io.emit('updatedPlayers', serverState.players);
     })
 
     socket.on('createNewRoom', (room: Room) => {
-        updateRooms(room);
-        io.emit('receivedRooms', serverState.rooms);
+        addRoom(room);
+        io.emit('updatedRooms', serverState.rooms);
     });
 
-    // socket.on('joinRoom',)
+    socket.on('joinRoom', (roomId: string) => {
+        let room = getRoomById(roomId);
+        let player = getPlayerBySocketId(socket.id);
+        if (room && room.joinedPlayers.length < 2 && player?.joinedRoom === false) {
+            updateRoomPlayers(room, socket.id);
+            socket.join(roomId);
+            io.emit('updatedRooms', serverState.rooms);
+            io.emit('updatedPlayers', serverState.players);
+        }
 
-})
+    });
 
+});
 
+//PLAYER METHODS
 
-// socket.on('sendMessage', (message) => {
-//     updateMessages(message);
-//     io.emit("receivedMessage", messages);
-// });
+export const getPlayerBySocketId = (socketId: string) => {
+    return getServerState().players.players.find(player => player.socketId === socketId);
+}
 
-// /export const updateMessages = (message: Message) => {
-//     messages.messages.push(message);
-//     message.timestamp = new Date().getDate();
-// }
+export const getPlayerById = (id: string) => {
+    return getServerState().players.players.find(player => player.id === id);
+}
 
-export const updateRooms = (room: Room) => {
+export const addPlayer = (username: string, socketId: string) => {
+    let currentDate = getCurrentDateNumber();
+    let serverState = getServerState();
+    let id = uuid();
+    let newPlayer: Player = { id, username, socketId, timestamp: currentDate, joinedRoom: false }
+    serverState.players.timestamp = currentDate;
+    serverState.players.players.push(newPlayer);
+}
+
+export const getCurrentDateNumber = () => {
+    return new Date().getDate();
+}
+
+//ROOM METHODS
+
+export const getRoomById = (roomId: string) => {
+    return getServerState().rooms.rooms.find(room => room.id === roomId);
+}
+
+export const addRoom = (room: Room) => {
     let currentDate = getCurrentDateNumber();
     let serverState = getServerState();
     serverState.rooms.timestamp = currentDate;
@@ -75,17 +102,15 @@ export const updateRooms = (room: Room) => {
     serverState.rooms.rooms.push(room);
 }
 
-export const updatePlayers = (username: string, socketId: string) => {
+export const updateRoomPlayers = (room: Room, socketId: string) => {
     let currentDate = getCurrentDateNumber();
-    let serverState = getServerState();
-    let id = uuid();
-    let newPlayer: Player = { id, username, socketId }
-    serverState.players.timestamp = currentDate;
-    serverState.players.players.push(newPlayer);
-}
-
-export const getCurrentDateNumber = () => {
-    return new Date().getDate();
+    let player = getPlayerBySocketId(socketId);
+    if (player) {
+        room.joinedPlayers.push(player.id);
+        room.timestamp = currentDate;
+        player.joinedRoom = true;
+        player.roomId = room.id;
+    }
 }
 
 

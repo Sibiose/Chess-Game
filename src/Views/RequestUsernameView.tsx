@@ -1,12 +1,24 @@
 import { useState } from "react"
+import { onCreateNewPlayer } from "../api/Server";
+import { Player } from "../api/Server.dto";
 
-export const RequestUsernameView = (props: { setUsername: (username: string) => void }) => {
-    let { setUsername } = props;
+export const RequestUsernameView = (props: { players: Player[], setUsername: (username: string) => void }) => {
+    let { setUsername, players } = props;
     const [usernameInput, setUsernameInput] = useState('');
+    const [playerExists, setplayerExists] = useState<boolean>(false);
+    const [wrongInput, setWrongInput] = useState<boolean>(false);
 
     const enterUsername = (username: string) => {
-        if (username !== "") {
+        let existingPlayer = players.find(player => player.username === username);
+        if (username === "") {
+            setWrongInput(true);
+            return
+        } else if (existingPlayer) {
+            setplayerExists(true);
+            return
+        } else {
             setUsername(username);
+            onCreateNewPlayer(username);
         }
     }
 
@@ -15,6 +27,7 @@ export const RequestUsernameView = (props: { setUsername: (username: string) => 
         <div id="requestUsernameView">
             <h2 className="username-header">Please enter your username!</h2>
             <input className="username-input" onKeyDown={(e) => { if (e.key === "Enter") enterUsername(usernameInput) }} type="text" onChange={(e) => { setUsernameInput(e.target.value ?? "") }} />
+            {wrongInput || playerExists ? <p className="input-error username-error">{wrongInput ? 'Please choose a correct username' : playerExists ? 'Username already taken' : null}</p> : null}
         </div>
     )
 }

@@ -8,8 +8,10 @@ import { PlayerDetailsView } from "./Views/PlayerDetailsView";
 import { BoardSideView } from "./Views/BoardSideView";
 import { RequestUsernameView } from "./Views/RequestUsernameView";
 import { useServer } from "./api/Server";
-import { Server } from "./api/Server.dto"
+import { Player, Server } from "./api/Server.dto"
 import { LobbyView } from "./Views/LobbyView";
+import { ConnectedTab } from "./Views/shared/ConnectedTab";
+import { RoomView } from "./Views/RoomView";
 
 
 function App() {
@@ -17,28 +19,16 @@ function App() {
   const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
 
   const game: ChessGame = useBoard(bottomPlayer);
-
   const server: Server = useServer();
-  
-  const status = server.connected ? <div style={{ color: 'green' }}>CONNECTED</div> : <div style={{ color: 'red' }}>NOT CONNECTED</div>
+  const loggedInPlayer: Player | undefined = server.players.players.find(player => player.username === username);
+  const joinedRoom = loggedInPlayer?.joinedRoom ? true : false;
 
   return (
     <div className="App">
-      {/* {status} */}
-      {username === "" ? <RequestUsernameView setUsername={setUsername} /> : null
-        // <><main>
-        //   <PlayerDetailsView game={game} isBottom={false} />
-        //   <DndProvider backend={HTML5Backend}>
-        //     <BoardView game={game} />
-        //   </DndProvider>
-        //   <PlayerDetailsView game={game} isBottom={true} />
-        // </main>
-        //   <aside>
-        //     <BoardSideView game={game} server={server} />
-        //   </aside>
-        // </>
-      }
-      {username !== "" ? <LobbyView rooms={server.rooms.rooms} /> : null}
+      <ConnectedTab connected={server.connected} />
+      {username === "" ? <RequestUsernameView setUsername={setUsername} players={server.players.players} /> : null}
+      {username !== "" && joinedRoom ? <RoomView game={game} server={server} loggedInPlayer={loggedInPlayer} /> : null}
+      {username !== "" && !joinedRoom ? <LobbyView rooms={server.rooms.rooms} players={server.players.players} loggedInPlayer={loggedInPlayer} /> : null}
     </div>
   );
 }

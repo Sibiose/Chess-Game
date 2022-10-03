@@ -1,5 +1,6 @@
 import { ChessGame } from "../Model/Board";
 import { } from 'uuid'
+import { PlayerColors } from "../Model/PieceEnums";
 
 export interface ServerState {
     rooms: Rooms
@@ -22,8 +23,10 @@ export interface Room {
     password?: string,
     isLocked: boolean,
     isMultiplayer: boolean,
+    bottomPlayer: PlayerColors,
     messages: Messages,
     gameState: any,
+    joinedPlayers: string[];
 }
 export interface Players {
     timestamp?: number,
@@ -32,8 +35,11 @@ export interface Players {
 
 export interface Player {
     id: string,
+    timestamp?: number,
     username: string,
     socketId: string,
+    joinedRoom: boolean,
+    roomId?:string
 }
 
 export interface Messages {
@@ -42,7 +48,8 @@ export interface Messages {
 }
 
 export interface Message {
+    timestamp?: number;
     message: string;
     author?: string;
-    timestamp?: number;
+    
 }

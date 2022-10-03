@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
-import { Message, Messages, Players, Room, Rooms, Server, ServerState } from "./Server.dto";
+import { Message, Messages, Player, Players, Room, Rooms, Server, ServerState } from "./Server.dto";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
@@ -52,18 +52,16 @@ export const getSocket = (setState: any) => {
             });
         });
 
-        globalSocket.on("receivedRooms", (rooms: Rooms) => {
+        globalSocket.on("updatedRooms", (rooms: Rooms) => {
             setState((prevState: Server) => {
                 return { ...prevState, rooms }
             })
         })
-        globalSocket.on("receivedPlayers", (players: Players) => {
+        globalSocket.on("updatedPlayers", (players: Players) => {
             setState((prevState: Server) => {
                 return { ...prevState, players }
             });
         });
-
-
     }
     return globalSocket;
 }
@@ -81,6 +79,17 @@ export const onSendMessage = async (message: Message) => {
 export const onCreateNewRoom = async (room: Room) => {
     checkGlobalSocketExists();
     globalSocket.emit('createNewRoom', room);
+    await onJoinRoom(room.id);
+}
+
+export const onJoinRoom = async (roomId: String) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('joinRoom', roomId)
+}
+
+export const onCreateNewPlayer = async (username: string) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('createNewPlayer', username)
 }
 
 
