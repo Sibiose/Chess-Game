@@ -1,55 +1,63 @@
 import { ChessGame } from "../Model/Board";
-import { } from 'uuid'
 import { PlayerColors } from "../Model/PieceEnums";
 
 export interface ServerState {
-    rooms: Rooms
-    players: Players
+    rooms: RoomsDto
+    players: PlayersDto
 }
 
 export interface Server extends ServerState {
-    connected: boolean
+    connected: boolean,
+    currentPlayer?: PlayerDto
 }
 
-export interface Rooms {
+export interface RoomsDto {
     timestamp?: number,
-    rooms: Room[],
+    rooms: RoomDto[],
 }
 
-export interface Room {
+export interface RoomDto {
     id: string,
     timestamp?: number,
     name: string,
     password?: string,
     isLocked: boolean,
     isMultiplayer: boolean,
-    bottomPlayer: PlayerColors,
-    messages: Messages,
+    bottomPlayerColor: PlayerColors,
+    bottomPlayer?:PlayerDto,
+    topPlayer?:PlayerDto,
+    messages: MessagesDto,
     gameState: any,
     joinedPlayers: string[];
 }
-export interface Players {
+export interface PlayersDto {
     timestamp?: number,
-    players: Player[]
+    players: PlayerDto[]
 }
 
-export interface Player {
+export interface PlayerDto {
     id: string,
+    createdAt: number,
     timestamp?: number,
-    username: string,
+    username?: string,
     socketId: string,
-    joinedRoom: boolean,
-    roomId?:string
+    room?: RoomDto
 }
 
-export interface Messages {
+export interface UpdatePlayerDto {
     timestamp?: number,
-    messages: Message[]
+    username?: string,
+    socketId?: string,
+    room?: RoomDto
 }
 
-export interface Message {
+export interface MessagesDto {
+    timestamp?: number,
+    messages: MessageDto[]
+}
+
+export interface MessageDto {
     timestamp?: number;
     message: string;
     author?: string;
-    
 }

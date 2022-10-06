@@ -35,8 +35,8 @@ export interface ChessGame extends BoardState {
  * It creates and returns the Game object based on the current boardState.
  * The game methods allow and register any state change
  */
-export const useBoard = (bottomPlayer: PlayerColors) => {
-    const [boardState, setBoardState] = useState<BoardState>(createDefaultBoard(bottomPlayer));
+export const useBoard = (gameState: BoardState) => {
+    const [boardState, setBoardState] = useState<BoardState>({ ...gameState });
 
     let game = useMemo(() => {
         return {

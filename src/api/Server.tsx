@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
-import { Message, Messages, Player, Players, Room, Rooms, Server, ServerState } from "./Server.dto";
+import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
@@ -36,8 +36,20 @@ export const getSocket = (setState: any) => {
         globalSocket.on('receivedServerState', (serverState: ServerState) => {
             setState((prevState: Server) => {
                 return { ...prevState, ...serverState }
-            })
-        })
+            });
+        });
+
+        globalSocket.on('createdCurrentPlayer', (currentPlayer: PlayerDto) => {
+            setState((prevState: Server) => {
+                return { ...prevState, currentPlayer }
+            });
+        });
+
+        globalSocket.on('updatedCurrentPlayer', (updatedCurrentPlayer: PlayerDto) => {
+            setState((prevState: Server) => {
+                return { ...prevState, currentPlayer: { ...updatedCurrentPlayer } }
+            });
+        });
 
         globalSocket.on("connect_error", (err: any) => {
             console.log(err);
@@ -46,22 +58,25 @@ export const getSocket = (setState: any) => {
             });
         });
 
-        globalSocket.on("receivedMessage", (messages: Messages) => {
+        globalSocket.on("receivedMessage", (messages: MessagesDto) => {
             setState((prevState: Server) => {
                 return { ...prevState, messages }
             });
         });
 
-        globalSocket.on("updatedRooms", (rooms: Rooms) => {
+        globalSocket.on("updatedRooms", (rooms: RoomsDto) => {
             setState((prevState: Server) => {
                 return { ...prevState, rooms }
             })
         })
-        globalSocket.on("updatedPlayers", (players: Players) => {
+        globalSocket.on("updatedPlayers", (players: PlayersDto) => {
             setState((prevState: Server) => {
                 return { ...prevState, players }
             });
         });
+
+
+        globalSocket.on()
     }
     return globalSocket;
 }
@@ -71,15 +86,15 @@ const checkGlobalSocketExists = () => {
         throw Error("INVALID USAGE!")
 }
 
-export const onSendMessage = async (message: Message) => {
+export const onSendMessage = async (message: MessageDto) => {
     checkGlobalSocketExists();
     globalSocket.emit('sendMessage', message);
 }
 
-export const onCreateNewRoom = async (room: Room) => {
+export const onCreateNewRoom = async (room: RoomDto) => {
     checkGlobalSocketExists();
     globalSocket.emit('createNewRoom', room);
-    await onJoinRoom(room.id);
+    onJoinRoom(room.id);
 }
 
 export const onJoinRoom = async (roomId: String) => {
@@ -87,9 +102,9 @@ export const onJoinRoom = async (roomId: String) => {
     globalSocket.emit('joinRoom', roomId)
 }
 
-export const onCreateNewPlayer = async (username: string) => {
+export const onUpdatePlayer = async (updatedPlayer: UpdatePlayerDto) => {
     checkGlobalSocketExists();
-    globalSocket.emit('createNewPlayer', username)
+    globalSocket.emit('updatePlayer', updatedPlayer)
 }
 
 

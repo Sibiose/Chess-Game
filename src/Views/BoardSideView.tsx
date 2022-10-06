@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { onSendMessage, } from "../api/Server";
-import { Server, Message, Messages } from "../api/Server.dto"
+import { Server, MessageDto, MessagesDto } from "../api/Server.dto"
 import { ChessGame } from "../Model/Board";
 
 

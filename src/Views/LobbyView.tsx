@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { onCreateNewRoom, onJoinRoom } from "../api/Server";
-import { Player, Room } from "../api/Server.dto";
+import { PlayerDto, RoomDto } from "../api/Server.dto";
 import { InputRadioView, InputTextView } from "./shared/InputGeneral";
 import { v4 as uuid } from 'uuid';
 import { displayNone } from "./BoardSideView";
@@ -10,8 +10,8 @@ import { StatusBubble } from "./shared/StatusBubble";
 
 //TODO: Add ONLINE PLAYERS ASIDE
 
-export const LobbyView = (props: { rooms: Room[], players: Player[], loggedInPlayer: Player | undefined }) => {
-    let { rooms, players, loggedInPlayer } = props;
+export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], currentPlayer: PlayerDto | undefined }) => {
+    let { rooms, players, currentPlayer } = props;
     const [openEditor, setopenEditor] = useState(false);
     return (
         <div
@@ -33,10 +33,14 @@ export const LobbyView = (props: { rooms: Room[], players: Player[], loggedInPla
                 <aside className="players-wrapper">
                     <h2 className="players-list-title">Online Players</h2>
                     <ul className="players-list">
-                        {players.map(player => <li className="player-list-item">
-                            <StatusBubble status={player.joinedRoom} />
-                            {player.username}
-                        </li>)}
+                        {players.map((player, i) => {
+                            if (player.username) {
+                                return <li key={i} className="player-list-item">
+                                    <StatusBubble status={player.room ? true : false} />
+                                    {player.username}</li>
+                            }
+                        }
+                        )}
                     </ul>
                 </aside>
             </section>
@@ -44,16 +48,16 @@ export const LobbyView = (props: { rooms: Room[], players: Player[], loggedInPla
     )
 }
 
-export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayer: PlayerColors) => {
+export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayerColor: PlayerColors) => {
     let roomId = uuid();
     if (roomName === "")
         return true
     if (isLocked && password === "")
         return true
 
-    let gameState = createDefaultBoard(bottomPlayer);
+    let gameState = createDefaultBoard(bottomPlayerColor);
 
-    onCreateNewRoom({ id: roomId, name: roomName, isLocked, isMultiplayer, password, joinedPlayers: [], bottomPlayer, gameState, messages: { messages: [] } });
+    onCreateNewRoom({ id: roomId, name: roomName, isLocked, isMultiplayer, password, joinedPlayers: [], bottomPlayerColor, gameState, messages: { messages: [] } });
     return false
 
 }
@@ -98,7 +102,7 @@ export const LobbyOverlayView = (props: { setopenEditor: (openEditor: boolean) =
     )
 }
 
-export const RoomCardView = (props: { room: Room }) => {
+export const RoomCardView = (props: { room: RoomDto }) => {
 
     let { room } = props;
     let joinedDisabled = room.isMultiplayer && room.joinedPlayers.length > 1 || !room.isMultiplayer && room.joinedPlayers.length > 0

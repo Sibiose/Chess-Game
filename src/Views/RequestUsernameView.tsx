@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { onCreateNewPlayer } from "../api/Server";
-import { Player } from "../api/Server.dto";
+import { onUpdatePlayer } from "../api/Server";
+import { PlayerDto } from "../api/Server.dto";
 
-export const RequestUsernameView = (props: { players: Player[], setUsername: (username: string) => void }) => {
+export const RequestUsernameView = (props: { players: PlayerDto[], setUsername: (username: string) => void }) => {
     let { setUsername, players } = props;
     const [usernameInput, setUsernameInput] = useState('');
     const [playerExists, setplayerExists] = useState<boolean>(false);
@@ -18,7 +18,7 @@ export const RequestUsernameView = (props: { players: Player[], setUsername: (us
             return
         } else {
             setUsername(username);
-            onCreateNewPlayer(username);
+            onUpdatePlayer({ username });
         }
     }
 
