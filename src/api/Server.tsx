@@ -102,6 +102,11 @@ export const onJoinRoom = async (roomId: String) => {
     globalSocket.emit('joinRoom', roomId)
 }
 
+export const onCreatePlayer = async (username: string) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('createPlayer', username);
+}
+
 export const onUpdatePlayer = async (updatedPlayer: UpdatePlayerDto) => {
     checkGlobalSocketExists();
     globalSocket.emit('updatePlayer', updatedPlayer)

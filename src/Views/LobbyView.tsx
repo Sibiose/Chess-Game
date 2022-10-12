@@ -20,7 +20,7 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
             }}
             id="lobby" >
             <div className="lobby-header-wrapper">
-                <h1 className="lobby-title">Welcome to Lobby</h1>
+                <h1 className="lobby-title">Welcome to Lobby, {currentPlayer?.username ?? 'Guest'} </h1>
                 <p className="lobby-desc">Join one of the existing rooms, or create a new room. Have fun!</p>
             </div>
             <button onClick={() => { setopenEditor(true) }} className="open-editor-btn">Create a new Room</button>

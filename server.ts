@@ -42,17 +42,13 @@ io.on('connection', socket => {
     //Sending the current serverState once the socket connects to the server
     io.emit('receivedServerState', serverState);
     //Creating the current session for a new socket
-    io.to(socket.id).emit('createdCurrentPlayer', addPlayer(socket.id));
-
+    socket.on('createPlayer', async (username: string) => {
+        io.to(socket.id).emit('createdCurrentPlayer', addPlayer(socket.id, username));
+        io.emit('updatedPlayers', serverState.players);
+    });
     socket.on('updatePlayer', async (updatedPlayer: UpdatePlayerDto) => {
-        try {
-            io.to(socket.id).emit('updatedCurrentPlayer', updatePlayer(socket.id, { ...updatedPlayer }));
-            io.emit('updatedPlayers', serverState.players);
-        }
-        catch (err) {
-            console.log(err);
-        }
-
+        io.to(socket.id).emit('updatedCurrentPlayer', updatePlayer(socket.id, { ...updatedPlayer }));
+        io.emit('updatedPlayers', serverState.players);
     });
 
     socket.on('createNewRoom', (room: RoomDto) => {
@@ -90,11 +86,11 @@ export const getPlayerIndexBySocketId = (socketId: String) => {
     return getServerState().players.players.map((player, i) => player.socketId === socketId ? i : null).filter(i => i)[0];
 }
 
-export const addPlayer = (socketId: string): PlayerDto => {
+export const addPlayer = (socketId: string, username: string): PlayerDto => {
     let currentDate = getCurrentDateNumber();
     let serverState = getServerState();
     let id = uuid();
-    let newPlayer: PlayerDto = { id, socketId, createdAt: currentDate, timestamp: currentDate }
+    let newPlayer: PlayerDto = { id, socketId, username, createdAt: currentDate, timestamp: currentDate }
     serverState.players.timestamp = currentDate;
     serverState.players.players.push(newPlayer);
     return newPlayer;
