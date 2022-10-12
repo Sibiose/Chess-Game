@@ -29,7 +29,19 @@ export interface RoomDto {
     messages: MessagesDto,
     gameState: any,
     joinedPlayers: string[];
+    isFull:boolean,
 }
+
+export interface UpdateRoomDto{
+    timestamp?:number;
+    joinedPlayers?:string[];
+    isFull?:boolean;
+    gameState?: any;
+    messages?: MessagesDto;
+    bottomPlayer?:PlayerDto;
+    topPlayer?:PlayerDto;
+}
+
 export interface PlayersDto {
     timestamp?: number,
     players: PlayerDto[]
@@ -60,4 +72,12 @@ export interface MessageDto {
     timestamp?: number;
     message: string;
     author?: string;
+}
+
+export interface RoomRequest{
+    name:string,
+    isLocked:boolean, 
+    isMultiplayer:boolean,
+    password?:string,
+    bottomPlayerColor:PlayerColors,
 }

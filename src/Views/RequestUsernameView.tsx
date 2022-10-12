@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { onCreatePlayer, onUpdatePlayer } from "../api/Server";
+import { onCreatePlayer } from "../api/Server";
 import { PlayerDto } from "../api/Server.dto";
 
 export const RequestUsernameView = (props: { players: PlayerDto[], setUsername: (username: string) => void }) => {

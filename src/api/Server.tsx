@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
-import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
+import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
@@ -91,10 +91,9 @@ export const onSendMessage = async (message: MessageDto) => {
     globalSocket.emit('sendMessage', message);
 }
 
-export const onCreateNewRoom = async (room: RoomDto) => {
+export const onCreateNewRoom = async (room: RoomRequest) => {
     checkGlobalSocketExists();
     globalSocket.emit('createNewRoom', room);
-    onJoinRoom(room.id);
 }
 
 export const onJoinRoom = async (roomId: String) => {

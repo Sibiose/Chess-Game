@@ -49,15 +49,12 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
 }
 
 export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayerColor: PlayerColors) => {
-    let roomId = uuid();
     if (roomName === "")
         return true
     if (isLocked && password === "")
         return true
 
-    let gameState = createDefaultBoard(bottomPlayerColor);
-
-    onCreateNewRoom({ id: roomId, name: roomName, isLocked, isMultiplayer, password, joinedPlayers: [], bottomPlayerColor, gameState, messages: { messages: [] } });
+    onCreateNewRoom({ name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor });
     return false
 
 }
