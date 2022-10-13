@@ -8,8 +8,7 @@ import { PlayerDetailsView } from "./PlayerDetailsView"
 
 export const RoomView = (props: { server: Server, currentRoom: RoomDto | undefined }) => {
     const { server, currentRoom } = props;
-    const game: ChessGame = useBoard(currentRoom?.gameState);
-    console.log(currentRoom);
+    const game: ChessGame = useBoard(currentRoom?.id ?? "", currentRoom?.gameState);
     return (
         <>
             <main>

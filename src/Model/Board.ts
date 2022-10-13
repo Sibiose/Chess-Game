@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { canMove, move } from "./MovementLogic";
 import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
+import { onPlayerMove } from "../api/Server";
 
 /**
  * An interface used for the boardState
@@ -19,6 +20,7 @@ export interface BoardState {
     isInMate: boolean;
     isInStaleMate: boolean;
     hasCastledOnLastMove: boolean;
+    timestamp?: number;
 }
 
 /**
@@ -35,13 +37,13 @@ export interface ChessGame extends BoardState {
  * It creates and returns the Game object based on the current boardState.
  * The game methods allow and register any state change
  */
-export const useBoard = (gameState: BoardState) => {
+export const useBoard = (roomId: string, gameState: BoardState) => {
     const [boardState, setBoardState] = useState<BoardState>({ ...gameState });
 
     let game = useMemo(() => {
         return {
             ...boardState,
-            move: (from: number, to: number) => setBoardState(move(boardState, from, to)),
+            move: (from: number, to: number) => onPlayerMove(roomId, from, to),
             canMove: (from: number, to: number) => canMove(boardState, from, to),
             switchPlayer: () => setBoardState(switchPlayer(boardState))
         }

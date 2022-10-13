@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
+import { BoardState } from "../Model/Board";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
@@ -75,6 +76,16 @@ export const getSocket = (setState: any) => {
             });
         });
 
+        globalSocket.on('updatedGameState', (newGameState: BoardState) => {
+            setState((prevState: Server) => {
+                let playerRoom = prevState.currentPlayer?.room;
+                if (playerRoom) {
+                    playerRoom.gameState = { ...newGameState }
+                }
+                return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
+            });
+        });
+
 
         globalSocket.on()
     }
@@ -109,6 +120,11 @@ export const onCreatePlayer = async (username: string) => {
 export const onUpdatePlayer = async (updatedPlayer: UpdatePlayerDto) => {
     checkGlobalSocketExists();
     globalSocket.emit('updatePlayer', updatedPlayer)
+}
+
+export const onPlayerMove = async (roomId: string, from: number, to: number) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('playerMove', roomId, from, to);
 }
 
 

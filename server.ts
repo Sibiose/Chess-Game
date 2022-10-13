@@ -70,8 +70,14 @@ io.on('connection', socket => {
             io.emit('updatedRooms', serverState.rooms);
             io.emit('updatedPlayers', serverState.players);
         }
-
     });
+
+    socket.on('playerMove', (roomId: string, from: number, to: number) => {
+        let newState = movePiece(socket.id, from, to);
+        if (newState) {
+            io.to(roomId).emit('updatedGameState', newState);
+        }
+    })
 
 });
 
@@ -80,6 +86,11 @@ io.on('connection', socket => {
 
 export const getPlayerBySocketId = (socketId: string) => {
     return getServerState().players.players.filter(player => player.socketId === socketId)[0];
+}
+
+export const getPlayerRoomIndexBySocketId = (socketId: string) => {
+    let playerRoom = getPlayerBySocketId(socketId).room;
+    return getServerState().rooms.rooms.map((room, i) => room.id === playerRoom?.id ? i : null).filter(i => i)[0];
 }
 
 export const getPlayerById = (id: string) => {
@@ -132,6 +143,7 @@ export const addRoom = (room: RoomRequest) => {
     let serverState = getServerState();
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
+    gameState.timestamp = currentDate;
     let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, joinedPlayers: [], isFull: false, timestamp: currentDate }
     serverState.rooms.timestamp = currentDate;
     serverState.rooms.rooms.push(newRoom);
@@ -173,11 +185,24 @@ export const createNewGame = (bottomPlayer: PlayerColors) => {
 
 
 
-export const onPlayerMove = (boardState: ChessGame, from: number, to: number): ChessGame => {
-    if (canMove(boardState, from, to)) {
-        move(boardState, from, to);
+export const movePiece = (roomId: string, from: number, to: number) => {
+
+    let roomIndex = getRoomIndexById(roomId);
+    if (roomIndex) {
+        let currentDate = getCurrentDateNumber();
+        let serverState = getServerState();
+        console.log('here')
+        if (canMove(serverState.rooms.rooms[roomIndex].gameState, from, to)) {
+            console.log('in here')
+            move(serverState.rooms.rooms[roomIndex].gameState, from, to);
+            serverState.rooms.rooms[roomIndex].gameState.timestamp = currentDate;
+            serverState.rooms.rooms[roomIndex].timestamp = currentDate;
+            serverState.rooms.timestamp = currentDate;
+            return serverState.rooms.rooms[roomIndex].gameState;
+        }
     }
-    return boardState;
+
+
 }
 
 
