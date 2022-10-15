@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { canMove, move } from "./MovementLogic";
+import { useEffect, useMemo, useState } from "react";
+import { canMove, isPlayerTurn, move } from "./MovementLogic";
 import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 import { onPlayerMove } from "../api/Server";
@@ -7,10 +7,13 @@ import { onPlayerMove } from "../api/Server";
 /**
  * An interface used for the boardState
  */
-export interface BoardState {
+export interface BoardState extends BoardStateSnapshot {
+    stateHistory: BoardStateSnapshot[]
+}
+
+export interface BoardStateSnapshot {
     bottomPlayer: PlayerColors;
     cells: Cell[];
-    stateHistory: BoardState[];
     capturedPieces: Cell[];
     currentPlayer: PlayerColors;
     hasCapturedOnLastMove: boolean;
@@ -29,7 +32,7 @@ export interface BoardState {
 export interface ChessGame extends BoardState {
     move: (from: number, to: number) => void
     canMove: (from: number, to: number) => boolean
-    switchPlayer: () => void
+    isPlayerTurn: (playerColor: PlayerColors | undefined) => boolean
 }
 
 /**
@@ -38,16 +41,18 @@ export interface ChessGame extends BoardState {
  * The game methods allow and register any state change
  */
 export const useBoard = (roomId: string, gameState: BoardState) => {
-    const [boardState, setBoardState] = useState<BoardState>({ ...gameState });
+    const [boardState, setBoardState] = useState<BoardState>(gameState);
+
+    useEffect(() => { setBoardState({ ...gameState }) }, [gameState]);
 
     let game = useMemo(() => {
         return {
             ...boardState,
             move: (from: number, to: number) => onPlayerMove(roomId, from, to),
             canMove: (from: number, to: number) => canMove(boardState, from, to),
-            switchPlayer: () => setBoardState(switchPlayer(boardState))
+            isPlayerTurn: (playerColor: PlayerColors | undefined) => isPlayerTurn(playerColor, boardState.currentPlayer)
         }
-    }, [boardState, setBoardState])
+    }, [boardState, setBoardState, gameState])
     return game;
 }
 

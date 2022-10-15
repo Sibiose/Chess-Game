@@ -16,8 +16,6 @@ import { RoomView } from "./Views/RoomView";
 
 function App() {
   const [username, setUsername] = useState<string>('');
-  const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
-
 
   const server: Server = useServer();
   const currentPlayer: PlayerDto | undefined = server.currentPlayer;
@@ -27,7 +25,7 @@ function App() {
     <div className="App">
       <ConnectedTab connected={server.connected} />
       {username === "" ? <RequestUsernameView setUsername={setUsername} players={server.players.players} /> : null}
-      {username !== "" && currentRoom ? <RoomView server={server} currentRoom={currentRoom} /> : null}
+      {username !== "" && currentRoom ? <RoomView currentRoom={currentRoom} /> : null}
       {username !== "" && !currentRoom ? <LobbyView rooms={server.rooms.rooms} players={server.players.players} currentPlayer={currentPlayer} /> : null}
     </div>
   );

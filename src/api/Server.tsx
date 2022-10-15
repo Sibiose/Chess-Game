@@ -8,10 +8,6 @@ let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } })
 
-export const useServer = () => {
-    return useContext(ServerContext);
-}
-
 export const ServerProvider = (props: any) => {
     const [state, setState] = useState({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
 
@@ -22,6 +18,10 @@ export const ServerProvider = (props: any) => {
     return <ServerContext.Provider value={state}>
         {props.children}
     </ServerContext.Provider>
+}
+
+export const useServer = () => {
+    return useContext(ServerContext);
 }
 
 export const getSocket = (setState: any) => {
@@ -86,8 +86,6 @@ export const getSocket = (setState: any) => {
             });
         });
 
-
-        globalSocket.on()
     }
     return globalSocket;
 }
@@ -107,7 +105,7 @@ export const onCreateNewRoom = async (room: RoomRequest) => {
     globalSocket.emit('createNewRoom', room);
 }
 
-export const onJoinRoom = async (roomId: String) => {
+export const onJoinRoom = async (roomId: string) => {
     checkGlobalSocketExists();
     globalSocket.emit('joinRoom', roomId)
 }

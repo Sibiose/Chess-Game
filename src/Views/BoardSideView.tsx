@@ -8,8 +8,8 @@ export let displayNone = {
     display: 'none'
 }
 
-export const BoardSideView = (props: { game: ChessGame, server: Server }) => {
-    const { game, server } = props
+export const BoardSideView = (props: { game: ChessGame }) => {
+    const { game } = props
     const handleChat = (newState: boolean) => {
         setchatState(newState);
     }

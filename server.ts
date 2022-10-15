@@ -3,7 +3,7 @@ const app = express();
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors'
-import { ChessGame, createDefaultBoard } from './src/Model/Board';
+import { ChessGame, createDefaultBoard, getOppositePlayer } from './src/Model/Board';
 import { PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
 import { MessageDto, MessagesDto, PlayerDto, RoomDto, RoomRequest, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
@@ -73,7 +73,7 @@ io.on('connection', socket => {
     });
 
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
-        let newState = movePiece(socket.id, from, to);
+            let newState = movePiece(roomId, from, to);
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
@@ -173,7 +173,7 @@ export const joinRoom = (roomId: string, socketId: string) => {
         let room = serverState.rooms.rooms[roomIndex]
         serverState.rooms.rooms[roomIndex].joinedPlayers.push(player.id);
         updateRoom(roomId, !room.bottomPlayer ? { bottomPlayer: { ...player } } : { topPlayer: { ...player } });
-        updatePlayer(socketId, { room: serverState.rooms.rooms[roomIndex] });
+        updatePlayer(socketId, { room: serverState.rooms.rooms[roomIndex], pieceColor: !room.bottomPlayer ? room.bottomPlayerColor : getOppositePlayer(room.bottomPlayerColor) });
     };
 }
 
@@ -191,9 +191,7 @@ export const movePiece = (roomId: string, from: number, to: number) => {
     if (roomIndex) {
         let currentDate = getCurrentDateNumber();
         let serverState = getServerState();
-        console.log('here')
         if (canMove(serverState.rooms.rooms[roomIndex].gameState, from, to)) {
-            console.log('in here')
             move(serverState.rooms.rooms[roomIndex].gameState, from, to);
             serverState.rooms.rooms[roomIndex].gameState.timestamp = currentDate;
             serverState.rooms.rooms[roomIndex].timestamp = currentDate;

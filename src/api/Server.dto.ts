@@ -24,22 +24,22 @@ export interface RoomDto {
     isLocked: boolean,
     isMultiplayer: boolean,
     bottomPlayerColor: PlayerColors,
-    bottomPlayer?:PlayerDto,
-    topPlayer?:PlayerDto,
+    bottomPlayer?: PlayerDto,
+    topPlayer?: PlayerDto,
     messages: MessagesDto,
     gameState: any,
     joinedPlayers: string[];
-    isFull:boolean,
+    isFull: boolean,
 }
 
-export interface UpdateRoomDto{
-    timestamp?:number;
-    joinedPlayers?:string[];
-    isFull?:boolean;
+export interface UpdateRoomDto {
+    timestamp?: number;
+    joinedPlayers?: string[];
+    isFull?: boolean;
     gameState?: any;
     messages?: MessagesDto;
-    bottomPlayer?:PlayerDto;
-    topPlayer?:PlayerDto;
+    bottomPlayer?: PlayerDto;
+    topPlayer?: PlayerDto;
 }
 
 export interface PlayersDto {
@@ -53,7 +53,8 @@ export interface PlayerDto {
     timestamp?: number,
     username?: string,
     socketId: string,
-    room?: RoomDto
+    room?: RoomDto,
+    pieceColor?: PlayerColors,
 }
 
 export interface UpdatePlayerDto {
@@ -61,6 +62,7 @@ export interface UpdatePlayerDto {
     username?: string,
     socketId?: string,
     room?: RoomDto
+    pieceColor?: PlayerColors,
 }
 
 export interface MessagesDto {
@@ -74,10 +76,10 @@ export interface MessageDto {
     author?: string;
 }
 
-export interface RoomRequest{
-    name:string,
-    isLocked:boolean, 
-    isMultiplayer:boolean,
-    password?:string,
-    bottomPlayerColor:PlayerColors,
+export interface RoomRequest {
+    name: string,
+    isLocked: boolean,
+    isMultiplayer: boolean,
+    password?: string,
+    bottomPlayerColor: PlayerColors,
 }
