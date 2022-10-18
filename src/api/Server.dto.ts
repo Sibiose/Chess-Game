@@ -6,14 +6,16 @@ export interface ServerState {
     players: PlayersDto
 }
 
-export interface Server extends ServerState {
+export interface Server {
     connected: boolean,
     currentPlayer?: PlayerDto
+    rooms: { timestamp?: number, rooms: RoomDto[] }
+    players: { timestamp?: number, players: PlayerDto[] }
 }
 
 export interface RoomsDto {
     timestamp?: number,
-    rooms: RoomDto[],
+    rooms: Map<string, RoomDto>
 }
 
 export interface RoomDto {
@@ -28,7 +30,6 @@ export interface RoomDto {
     topPlayer?: PlayerDto,
     messages: MessagesDto,
     gameState: any,
-    joinedPlayers: string[];
     isFull: boolean,
 }
 
@@ -44,7 +45,7 @@ export interface UpdateRoomDto {
 
 export interface PlayersDto {
     timestamp?: number,
-    players: PlayerDto[]
+    players: Map<string, PlayerDto>
 }
 
 export interface PlayerDto {

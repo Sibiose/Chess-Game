@@ -6,9 +6,10 @@ import cors from 'cors'
 import { ChessGame, createDefaultBoard, getOppositePlayer } from './src/Model/Board';
 import { PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
-import { MessageDto, MessagesDto, PlayerDto, RoomDto, RoomRequest, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
+import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
 app.use(cors());
 import { v4 as uuid } from 'uuid';
+import { timeStamp } from 'console';
 
 const server = http.createServer(app);
 let serverState: ServerState;
@@ -26,54 +27,63 @@ export const getServerState = () => {
     if (!serverState)
         serverState = {
             rooms: {
-                rooms: []
+                rooms: new Map<string, RoomDto>()
             },
             players: {
-                players: []
+                players: new Map<string, PlayerDto>()
             }
         }
     return serverState
 }
 
+export const parseRoomsObject = (rooms: RoomsDto) => {
+    let roomsArray = [...Array.from(rooms.rooms.values())];
+    return { ...rooms, rooms: roomsArray.length ? roomsArray : [] }
+}
+
+export const parsePlayersObject = (players: PlayersDto) => {
+    let playersArray = [...Array.from(players.players.values())];
+    return { ...players, players: playersArray.length ? playersArray : [] }
+}
 
 // Socket connection handling
 io.on('connection', socket => {
 
     //Sending the current serverState once the socket connects to the server
-    io.emit('receivedServerState', serverState);
+    io.emit('receivedServerState', { players: parsePlayersObject(getServerState().players), rooms: parseRoomsObject(getServerState().rooms) });
     //Creating the current session for a new socket
     socket.on('createPlayer', async (username: string) => {
         io.to(socket.id).emit('createdCurrentPlayer', addPlayer(socket.id, username));
-        io.emit('updatedPlayers', serverState.players);
+        io.emit('updatedPlayers', parsePlayersObject(serverState.players));
     });
     socket.on('updatePlayer', async (updatedPlayer: UpdatePlayerDto) => {
         io.to(socket.id).emit('updatedCurrentPlayer', updatePlayer(socket.id, { ...updatedPlayer }));
-        io.emit('updatedPlayers', serverState.players);
+        io.emit('updatedPlayers', parsePlayersObject(serverState.players));
     });
 
-    socket.on('createNewRoom', (room: RoomRequest) => {
+    socket.on('createNewRoom', (playerId: string, room: RoomRequest) => {
         let newRoom = addRoom(room);
         socket.join(newRoom.id);
-        joinRoom(newRoom.id, socket.id);
-        io.to(socket.id).emit('updatedCurrentPlayer', getPlayerBySocketId(socket.id));
-        io.emit('updatedRooms', serverState.rooms);
-        io.emit('updatedPlayers', serverState.players);
+        joinRoom(newRoom.id, playerId);
+        io.to(socket.id).emit('updatedCurrentPlayer', getPlayerById(playerId));
+        io.emit('updatedRooms', parseRoomsObject(serverState.rooms));
+        io.emit('updatedPlayers', parsePlayersObject(serverState.players));
     });
 
-    socket.on('joinRoom', (roomId: string) => {
+    socket.on('joinRoom', (roomId: string, playerId: string) => {
         let room = getRoomById(roomId);
-        let player = getPlayerBySocketId(socket.id);
-        if (room && room.joinedPlayers.length < 2 && !player?.room) {
+        let player = getPlayerById(playerId);
+        if (room && room.isFull === false && !player?.room) {
             socket.join(roomId);
-            joinRoom(roomId, socket.id)
-            io.to(socket.id).emit('updatedCurrentPlayer', getPlayerBySocketId(socket.id));
-            io.emit('updatedRooms', serverState.rooms);
-            io.emit('updatedPlayers', serverState.players);
+            joinRoom(roomId, playerId)
+            io.to(socket.id).emit('updatedCurrentPlayer', getPlayerById(playerId));
+            io.emit('updatedRooms', parseRoomsObject(serverState.rooms));
+            io.emit('updatedPlayers', parsePlayersObject(serverState.players));
         }
     });
 
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
-            let newState = movePiece(roomId, from, to);
+        let newState = movePiece(roomId, from, to);
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
@@ -84,21 +94,8 @@ io.on('connection', socket => {
 
 //PLAYER METHODS
 
-export const getPlayerBySocketId = (socketId: string) => {
-    return getServerState().players.players.filter(player => player.socketId === socketId)[0];
-}
-
-export const getPlayerRoomIndexBySocketId = (socketId: string) => {
-    let playerRoom = getPlayerBySocketId(socketId).room;
-    return getServerState().rooms.rooms.map((room, i) => room.id === playerRoom?.id ? i : null).filter(i => i)[0];
-}
-
-export const getPlayerById = (id: string) => {
-    return getServerState().players.players.filter(player => player.id === id)[0];
-}
-
-export const getPlayerIndexBySocketId = (socketId: String) => {
-    return getServerState().players.players.map((player, i) => player.socketId === socketId ? i : null).filter(i => i)[0];
+export const getPlayerById = (playerId: string) => {
+    return getServerState().players.players.get(playerId);
 }
 
 export const addPlayer = (socketId: string, username: string): PlayerDto => {
@@ -107,20 +104,19 @@ export const addPlayer = (socketId: string, username: string): PlayerDto => {
     let id = uuid();
     let newPlayer: PlayerDto = { id, socketId, username, createdAt: currentDate, timestamp: currentDate }
     serverState.players.timestamp = currentDate;
-    serverState.players.players.push(newPlayer);
+    serverState.players.players.set(id, newPlayer);
     return newPlayer;
 }
 
-export const updatePlayer = (socketId: string, updatedPlayer: UpdatePlayerDto) => {
-    let index = getPlayerIndexBySocketId(socketId);
-    let player = getPlayerBySocketId(socketId);
-    if (index && player) {
+export const updatePlayer = (playerId: string, updatedPlayer: UpdatePlayerDto) => {
+    let player = getPlayerById(playerId)
+    if (player) {
         let currentDate = getCurrentDateNumber();
         let serverState = getServerState();
-        serverState.players.players[index] = { ...player, ...updatedPlayer, timestamp: currentDate }
+        serverState.players.players.set(playerId, { ...player, ...updatedPlayer, timestamp: currentDate })
         serverState.players.timestamp = currentDate;
 
-        return { ...serverState.players.players[index] }
+        return { ...player }
     }
 }
 
@@ -131,11 +127,7 @@ export const getCurrentDateNumber = () => {
 //ROOM METHODS
 
 export const getRoomById = (roomId: string) => {
-    return getServerState().rooms.rooms.find(room => room.id === roomId);
-}
-
-export const getRoomIndexById = (roomId: string) => {
-    return getServerState().rooms.rooms.map((room, i) => room.id === roomId ? i : null).filter(i => i)[0];
+    return getServerState().rooms.rooms.get(roomId);
 }
 
 export const addRoom = (room: RoomRequest) => {
@@ -144,36 +136,32 @@ export const addRoom = (room: RoomRequest) => {
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
     gameState.timestamp = currentDate;
-    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, joinedPlayers: [], isFull: false, timestamp: currentDate }
+    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, timestamp: currentDate }
     serverState.rooms.timestamp = currentDate;
-    serverState.rooms.rooms.push(newRoom);
+    serverState.rooms.rooms.set(id, newRoom);
 
     return newRoom
 }
 
 export const updateRoom = (roomId: string, updatedRoom: UpdateRoomDto) => {
-    let index = getRoomIndexById(roomId);
     let room = getRoomById(roomId);
-    if (index && room) {
+    if (room) {
         let currentDate = getCurrentDateNumber();
         let serverState = getServerState();
-        serverState.rooms.rooms[index] = { ...room, ...updatedRoom, timestamp: currentDate }
+        serverState.rooms.rooms.set(roomId, { ...room, ...updatedRoom, timestamp: currentDate });
         serverState.rooms.timestamp = currentDate;
 
-        return { ...serverState.players.players[index] }
+        return { ...serverState.rooms.rooms.get(roomId) }
     }
 }
 
-export const joinRoom = (roomId: string, socketId: string) => {
-    let roomIndex = getRoomIndexById(roomId);
-    let playerIndex = getPlayerIndexBySocketId(socketId);
-    if (roomIndex && playerIndex) {
-        let serverState = getServerState();
-        let player = serverState.players.players[playerIndex];
-        let room = serverState.rooms.rooms[roomIndex]
-        serverState.rooms.rooms[roomIndex].joinedPlayers.push(player.id);
-        updateRoom(roomId, !room.bottomPlayer ? { bottomPlayer: { ...player } } : { topPlayer: { ...player } });
-        updatePlayer(socketId, { room: serverState.rooms.rooms[roomIndex], pieceColor: !room.bottomPlayer ? room.bottomPlayerColor : getOppositePlayer(room.bottomPlayerColor) });
+export const joinRoom = (roomId: string, playerId: string) => {
+    let player = getPlayerById(playerId);
+    let room = getRoomById(roomId)
+    if (player && room) {
+        updateRoom(roomId, !room.bottomPlayer ? { bottomPlayer: { ...player }, isFull: !room.isMultiplayer } : { topPlayer: { ...player }, isFull: true });
+        console.log(room);
+        updatePlayer(playerId, { room, pieceColor: !room.bottomPlayer ? room.bottomPlayerColor : getOppositePlayer(room.bottomPlayerColor) });
     };
 }
 
@@ -183,29 +171,18 @@ export const createNewGame = (bottomPlayer: PlayerColors) => {
     return createDefaultBoard(bottomPlayer);
 }
 
-
-
 export const movePiece = (roomId: string, from: number, to: number) => {
 
-    let roomIndex = getRoomIndexById(roomId);
-    if (roomIndex) {
+    let room = getRoomById(roomId);
+    if (room) {
         let currentDate = getCurrentDateNumber();
         let serverState = getServerState();
-        if (canMove(serverState.rooms.rooms[roomIndex].gameState, from, to)) {
-            move(serverState.rooms.rooms[roomIndex].gameState, from, to);
-            serverState.rooms.rooms[roomIndex].gameState.timestamp = currentDate;
-            serverState.rooms.rooms[roomIndex].timestamp = currentDate;
+        if (canMove(room.gameState, from, to)) {
+            serverState.rooms.rooms.set(roomId, { ...room, timestamp: currentDate, gameState: { ...move(room.gameState, from, to), timeStamp: currentDate } });
             serverState.rooms.timestamp = currentDate;
-            return serverState.rooms.rooms[roomIndex].gameState;
+            return serverState.rooms.rooms.get(roomId)?.gameState;
         }
     }
 
 
 }
-
-
-// export const onCreateNewGame = (bottomPlayer: PlayerColors) => {
-//     let boardState = createDefaultBoard(bottomPlayer);
-
-//     return boardState;
-// }

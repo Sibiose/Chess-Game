@@ -1,12 +1,12 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
-import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
+import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
 import { BoardState } from "../Model/Board";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
 
-const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } })
+const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
 
 export const ServerProvider = (props: any) => {
     const [state, setState] = useState({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
@@ -67,7 +67,7 @@ export const getSocket = (setState: any) => {
 
         globalSocket.on("updatedRooms", (rooms: RoomsDto) => {
             setState((prevState: Server) => {
-                return { ...prevState, rooms }
+                return { ...prevState, rooms: { ...rooms } }
             })
         })
         globalSocket.on("updatedPlayers", (players: PlayersDto) => {
@@ -100,14 +100,14 @@ export const onSendMessage = async (message: MessageDto) => {
     globalSocket.emit('sendMessage', message);
 }
 
-export const onCreateNewRoom = async (room: RoomRequest) => {
+export const onCreateNewRoom = async (playerdId: string, room: RoomRequest) => {
     checkGlobalSocketExists();
-    globalSocket.emit('createNewRoom', room);
+    globalSocket.emit('createNewRoom', playerdId, room);
 }
 
-export const onJoinRoom = async (roomId: string) => {
+export const onJoinRoom = async (roomId: string, playerId: string | undefined) => {
     checkGlobalSocketExists();
-    globalSocket.emit('joinRoom', roomId)
+    globalSocket.emit('joinRoom', roomId, playerId)
 }
 
 export const onCreatePlayer = async (username: string) => {

@@ -7,7 +7,7 @@ export const RequestUsernameView = (props: { players: PlayerDto[], setUsername: 
     const [usernameInput, setUsernameInput] = useState('');
     const [playerExists, setplayerExists] = useState<boolean>(false);
     const [wrongInput, setWrongInput] = useState<boolean>(false);
-
+    console.log(players);
     const enterUsername = (username: string) => {
         let existingPlayer = players.find(player => player.username === username);
         if (username === "") {

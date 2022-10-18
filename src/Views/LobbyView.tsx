@@ -1,17 +1,16 @@
 import { useState } from "react"
-import { onCreateNewRoom, onJoinRoom } from "../api/Server";
+import { onCreateNewRoom, onJoinRoom, useServer } from "../api/Server";
 import { PlayerDto, RoomDto } from "../api/Server.dto";
 import { InputRadioView, InputTextView } from "./shared/InputGeneral";
-import { v4 as uuid } from 'uuid';
 import { displayNone } from "./BoardSideView";
 import { PlayerColors } from "../Model/PieceEnums";
-import { createDefaultBoard } from "../Model/Board";
 import { StatusBubble } from "./shared/StatusBubble";
 
 //TODO: Add ONLINE PLAYERS ASIDE
 
 export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], currentPlayer: PlayerDto | undefined }) => {
     let { rooms, players, currentPlayer } = props;
+    console.log(rooms);
     const [openEditor, setopenEditor] = useState(false);
     return (
         <div
@@ -39,6 +38,7 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
                                     <StatusBubble status={player.room ? true : false} />
                                     {player.username}</li>
                             }
+                            return null
                         }
                         )}
                     </ul>
@@ -48,19 +48,19 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
     )
 }
 
-export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayerColor: PlayerColors) => {
+export const createRoom = (playerId: string, isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayerColor: PlayerColors) => {
     if (roomName === "")
         return true
     if (isLocked && password === "")
         return true
 
-    onCreateNewRoom({ name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor });
+    onCreateNewRoom(playerId, { name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor });
     return false
 
 }
 
 export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => void }) => {
-
+    let currentPlayer = useServer().currentPlayer;
     let { setopenEditor } = props;
 
     const [isLocked, setIsLocked] = useState<boolean>(false);
@@ -83,12 +83,12 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
                 <p style={error ? {} : displayNone} className="input-error">Please check that all fields are corect!</p>
             </div>
             <button className="create-room-btn" onClick={async () => {
-                let isError = await createRoom(isLocked, isMultiplayer, roomName, password, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT);
+                let isError = createRoom(currentPlayer?.id ?? "", isLocked, isMultiplayer, roomName, password, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT);
                 setError(isError);
                 if (!isError)
                     setopenEditor(false);
             }}>Create Room</button>
-        </div>
+        </div >
     )
 }
 
@@ -100,9 +100,9 @@ export const LobbyOverlayView = (props: { setopenEditor: (openEditor: boolean) =
 }
 
 export const RoomCardView = (props: { room: RoomDto }) => {
-
+    let currentPlayer = useServer().currentPlayer
     let { room } = props;
-    let joinedDisabled = room.isMultiplayer && room.joinedPlayers.length > 1 || !room.isMultiplayer && room.joinedPlayers.length > 0
+    let joinedDisabled = room.isFull;
     return (
         <div className="room-card">
             <h3 className="room-name">{room.name}</h3>
@@ -111,7 +111,7 @@ export const RoomCardView = (props: { room: RoomDto }) => {
                 <p className="room-password">{room.isLocked ? 'Password Required' : 'Open Room'}</p>
             </div>
             <button disabled={joinedDisabled} className={joinedDisabled ? "disabled-btn join-room-btn" : "join-room-btn"} onClick={() => {
-                onJoinRoom(room.id);
+                onJoinRoom(room.id, currentPlayer?.id);
             }}>Join Room</button>
         </div>)
 }
