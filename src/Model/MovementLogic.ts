@@ -1,4 +1,3 @@
-import { socket } from "../Server_API/ChessServer";
 import { BoardState, getOppositePlayer } from "./Board";
 import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";

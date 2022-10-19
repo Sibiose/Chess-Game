@@ -25,7 +25,6 @@ export const CellView = (props: { index: number, game: ChessGame }) => {
 
     return (
         <div style={isOver ? { backgroundColor: 'yellow' } : {}} ref={drop} className={(x + y) % 2 === 0 ? "chess-cell dark-chess-cell" : "chess-cell"}>
-            <div>{index}</div>
             {cell.pieceType && <PieceView index={index} src={imgSrc} />}
             {isOver && !canDrop && <CellOverlay color={'red'} />}
             {!isOver && canDrop && <CellOverlay color={'yellow'} />}
