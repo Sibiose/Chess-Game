@@ -29,11 +29,7 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.isInCheck = isInCheck;
     boardState.isInMate = isInMate;
     boardState.isInStaleMate = isInStaleMate;
-    let { stateHistory, ...boardStateSnapshot } = boardState;
-
-    boardState.stateHistory.push({ ...boardStateSnapshot })
-
-
+    
     let { stateHistory, ...boardSnapshot } = boardState;
     boardState.stateHistory.push({ ...boardSnapshot })
     boardState.currentPlayer = getOppositePlayer(boardState.currentPlayer);
