@@ -7,6 +7,13 @@
 
 :root {
   --table-width: 80%;
+  --prm-color: #34495E;
+  --background-color-dark: #1a2530;
+  --secondary-color-light: #ECF0F1;
+}
+
+.App {
+  display: flex;
 }
 
 html,
@@ -16,23 +23,23 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--background-color-dark);
+  background-size: cover;
 }
 
 #chess-table {
-  background-color: orange;
-  margin: 1rem auto;
-  width: 40rem;
+  margin: 0.5rem;
+  width: 80vh;
   display: grid;
   grid-template-columns: repeat(8, 12.5%);
-  height: 40rem;
+  height: 80vh;
   border: 1px solid black;
 }
 
 .chess-cell {
   width: 100%;
   height: 100%;
-  /* border: 1px solid black; */
-  background-color: #eeeed2;
+  background-color: var(--secondary-color-light);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -40,11 +47,107 @@ body {
 }
 
 .dark-chess-cell {
-  background-color: #769656;
+  background-color: var(--prm-color);
 }
 
 .piece-img {
   position: absolute;
   height: 70%;
   width: 70%;
+}
+
+/*Player details view*/
+
+.player-details {
+  display: flex;
+  background-color: var(--prm-color);
+  justify-content: space-between;
+  padding: 0.8rem;
+  align-items: center;
+  color: white;
+}
+
+.captured-pieces-container {
+  height: 1.7rem;
+}
+
+.captured-piece-icon {
+  width: 1.7rem;
+}
+
+.board-side-wrapper {
+  width: 300px;
+  height: 400px;
+  background-color: var(--prm-color);
+  margin-left: 3rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  border-bottom: 3px solid var(--background-color-dark);
+}
+
+.game-details,
+.chat-screen {
+  height: 90%;
+  border-bottom: 3px solid var(--background-color-dark);
+  padding: 1rem;
+}
+
+
+.details-buttons {
+  height: 10%;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--background-color-dark);
+}
+
+.details-buttons>button {
+  background-color: var(--prm-color);
+  width: 49.5%;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary-color-light);
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.game-details-btn {
+  border-bottom-left-radius: 10px;
+}
+
+.chat-btn {
+  border-bottom-right-radius: 10px;
+}
+
+.move-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--background-color-dark);
+  background-color: var(--prm-color);
+  color:var(--secondary-color-light);
+}
+
+
+.action-icon {
+  width: 2rem;
+  height: 2rem;
+  filter: invert(99%) sepia(16%) saturate(280%) hue-rotate(167deg) brightness(99%) contrast(91%);
+}
+.check-icon{
+  filter: invert(73%) sepia(11%) saturate(5192%) hue-rotate(348deg) brightness(95%) contrast(101%);
+}
+.checkmate-icon{
+  filter: invert(30%) sepia(54%) saturate(2705%) hue-rotate(344deg) brightness(79%) contrast(88%);
+}
+
+.move-piece-icon {
+  width: 2rem;
+  height: 2rem;
+}
+.game-details{
+  overflow-y: scroll;
 }

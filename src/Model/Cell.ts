@@ -1,32 +1,38 @@
-import { Piece } from "./Piece";
+import { PieceType, PlayerColors } from "./PieceEnums";
 
-export interface Coordonate {
-    x: number;
-    y: number;
-}
 
 export interface Cell {
-    position: Coordonate;
-    pieceAssigned: Piece | undefined;
+    pieceColor?: PlayerColors
+    pieceType?: PieceType | undefined
+    id?: number
+    wasMoved?: boolean
 }
 
-export const createDefaultCells = (pieces: Piece[]): Cell[] => {
+// Empty cell constant
+export const emptyCell: Cell = {};
 
-    let cells: Cell[] = [];
+/**
+ * A method that gives the x and y coordonates for a cell index
+ */
+export const indexToPosition = (index: number): [number, number] => {
+    let x: number = index % 8 + 1;
+    let y: number = Math.abs(Math.floor(index / 8) - 8);
 
-    for (let i = 8; i >= 1; i--) {
-        for (let j = 1; j <= 8; j++) {
-            cells = cells.concat({ position: { x: j, y: i }, pieceAssigned: undefined })
-        }
-    }
-    cells = cells.map(cell => {
-        pieces.forEach(piece => {
-            if (cell.position.x === piece.position.x && cell.position.y === piece.position.y) {
-                cell.pieceAssigned = piece;
-            }
-        })
-        return cell;
-    })
-    console.log(cells);
-    return cells;
+    return [x, y]
+}
+/**
+ * A method that gives the cell index of a pair of x and y coordonates
+ */
+export const positionToIndex = (x: number, y: number): number => {
+    return Math.abs(y * -1 + 8) * 8 + x - 1;
+}
+
+export const positionToString = (x: number, y: number): string => {
+    let xAxis = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+    return xAxis[x - 1] + y;
+}
+
+export const indexToString = (index: number): string => {
+    return positionToString(...indexToPosition(index));
 }

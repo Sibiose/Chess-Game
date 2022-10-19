@@ -1,7 +1,24 @@
+import { useDrag, DragPreviewImage } from "react-dnd";
 
-export const PieceView = (props: { src: string }) => {
+export const PieceView = (props: { src: string, index: number }) => {
+    let { src, index } = props;
+    const [{ isDragging }, drag, preview] = useDrag(() => ({
+        type: 'piece', item: { index },
 
-    return <img className="piece-img" src={props.src} alt="" />;
+        collect: (monitor) => {
+            return {
+                isDragging: !!monitor.isDragging(),
+            }
+        }
+    }))
+
+    let pieceStyle = { opacity: isDragging ? 0.2 : 1 }
+
+    return (
+        <>
+            <DragPreviewImage connect={preview} src={src} />
+            <img ref={drag} style={pieceStyle} className="piece-img" src={src} alt="" />
+        </>)
 
 }
 
