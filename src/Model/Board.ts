@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
-import { canMove, move } from "./MovementLogic";
+import { useEffect, useMemo, useState } from "react";
+import { canMove, isPlayerTurn, move } from "./MovementLogic";
 import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
+import { onPlayerMove } from "../api/Server";
 
 /**
  * An interface used for the boardState
  */
+
 export interface BoardStateSnapshot {
     bottomPlayer: PlayerColors;
     cells: Cell[];
@@ -18,6 +20,8 @@ export interface BoardStateSnapshot {
     isInMate: boolean;
     isInStaleMate: boolean;
     hasCastledOnLastMove: boolean;
+    timestamp?: number;
+    currentSound?:string;
 }
 
 export interface BoardState extends BoardStateSnapshot {
@@ -30,7 +34,7 @@ export interface BoardState extends BoardStateSnapshot {
 export interface ChessGame extends BoardState {
     move: (from: number, to: number) => void
     canMove: (from: number, to: number) => boolean
-    switchPlayer: () => void
+    isPlayerTurn: (playerColor: PlayerColors | undefined) => boolean
 }
 
 /**
@@ -38,17 +42,19 @@ export interface ChessGame extends BoardState {
  * It creates and returns the Game object based on the current boardState.
  * The game methods allow and register any state change
  */
-export const useBoard = (bottomPlayer: PlayerColors) => {
-    const [boardState, setBoardState] = useState<BoardState>(createDefaultBoard(bottomPlayer));
+export const useBoard = (roomId: string, gameState: BoardState) => {
+    const [boardState, setBoardState] = useState<BoardState>(gameState);
+
+    useEffect(() => { setBoardState({ ...gameState }) }, [gameState]);
 
     let game = useMemo(() => {
         return {
             ...boardState,
-            move: (from: number, to: number) => setBoardState(move(boardState, from, to)),
+            move: (from: number, to: number) => onPlayerMove(roomId, from, to),
             canMove: (from: number, to: number) => canMove(boardState, from, to),
-            switchPlayer: () => setBoardState(switchPlayer(boardState))
+            isPlayerTurn: (playerColor: PlayerColors | undefined) => isPlayerTurn(playerColor, boardState.currentPlayer)
         }
-    }, [boardState, setBoardState])
+    }, [boardState, setBoardState, gameState])
     return game;
 }
 
@@ -78,7 +84,7 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
         { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 9 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 10 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 11 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 12 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 13 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 14 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 15 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 16 },
         { pieceType: PieceType.ROOK, pieceColor: bottomPlayer, id: 1 }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 2 }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer, id: 3 }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer, id: 4 }, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer, id: 6 }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 7 }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer, id: 8 },
     ]
-    let newState = { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [], stateHistory: [], hasCapturedOnLastMove: false, lastMovedPiece: emptyCell, targetCellCode: '', isInCheck: false, hasCastledOnLastMove: false, isInMate: false, isInStaleMate: false }
+    let newState = { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [], stateHistory: [], hasCapturedOnLastMove: false, lastMovedPiece: emptyCell, targetCellCode: '', isInCheck: false, hasCastledOnLastMove: false, isInMate: false, isInStaleMate: false, timestamp: new Date().getTime() }
 
     return { ...newState, stateHistory: [{ ...newState }] };
 }

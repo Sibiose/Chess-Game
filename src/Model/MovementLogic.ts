@@ -1,5 +1,5 @@
-import { BoardState, getOppositePlayer } from "./Board";
-import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
+import { BoardState, BoardStateSnapshot, getOppositePlayer } from "./Board";
+import { Cell, emptyCell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
 /**
@@ -33,6 +33,12 @@ export const move = (boardState: BoardState, from: number, to: number) => {
 
     boardState.stateHistory.push({ ...boardStateSnapshot })
 
+
+    let { stateHistory, ...boardSnapshot } = boardState;
+    boardState.stateHistory.push({ ...boardSnapshot })
+    boardState.currentPlayer = getOppositePlayer(boardState.currentPlayer);
+    boardState.timestamp = new Date().getTime();
+
     //Playing sound depending on case
     let sound: string = 'Move'
     if (isInMate)
@@ -44,8 +50,8 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     else if (toCell?.pieceType)
         sound = 'Capture'
 
-    playSound(sound);
-
+    boardState.currentSound = sound;
+    
     return { ...boardState }
 }
 
@@ -392,4 +398,8 @@ export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, 
 export const playSound = (soundType: string) => {
     let sound = new Audio(`./SFX/${soundType}.mp3`)
     sound.play();
+}
+
+export const isPlayerTurn = (playerColor: PlayerColors | undefined, currentPlayerColor: PlayerColors) => {
+    return playerColor && playerColor === currentPlayerColor ? true : false;
 }

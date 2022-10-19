@@ -2,9 +2,12 @@ import { ChessGame } from "../Model/Board";
 import { Cell, indexToPosition } from "../Model/Cell";
 import { PieceView } from "./PieceView";
 import { useDrop } from "react-dnd";
+import { useServer } from "../api/Server";
 
 export const CellView = (props: { index: number, game: ChessGame }) => {
     let { game, index } = props;
+    let currentPlayerColor = useServer().currentPlayer?.pieceColor;
+    let roomIsFull = useServer().currentPlayer?.room?.isFull ?? false;
     let cell: Cell = game.cells[props.index]
     let [x, y] = indexToPosition(index);
     let imgSrc = `../../Pieces/${cell.pieceType}-${cell.pieceColor}.svg`
@@ -13,9 +16,8 @@ export const CellView = (props: { index: number, game: ChessGame }) => {
         accept: 'piece',
         drop: (item: { index: number }) => {
             game.move(item.index, index);
-            game.switchPlayer();
         },
-        canDrop: (item: { index: number }) => game.canMove(item.index, index),
+        canDrop: (item: { index: number }) => game.canMove(item.index, index) && game.isPlayerTurn(currentPlayerColor) && roomIsFull,
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop()

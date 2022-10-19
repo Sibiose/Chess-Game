@@ -1,5 +1,12 @@
 import { useState } from "react";
+import { onSendMessage, } from "../api/Server";
+import { Server, MessageDto, MessagesDto } from "../api/Server.dto"
 import { ChessGame } from "../Model/Board";
+
+
+export let displayNone = {
+    display: 'none'
+}
 
 export const BoardSideView = (props: { game: ChessGame }) => {
     const { game } = props
@@ -11,7 +18,8 @@ export const BoardSideView = (props: { game: ChessGame }) => {
 
     return (
         <div className="board-side-wrapper">
-            {chatState ? <ChatView /> : <GameDetailsView game={game} />}
+            <ChatView style={chatState ? {} : displayNone} />
+            <GameDetailsView game={game} style={chatState ? displayNone : {}} />
             <div className="details-buttons">
                 <button className="game-details-btn" onClick={() => handleChat(false)}>Game details</button>
                 <button className="chat-btn" onClick={() => handleChat(true)}>Chat</button>
@@ -20,7 +28,7 @@ export const BoardSideView = (props: { game: ChessGame }) => {
     )
 }
 
-export const GameDetailsView = (props: { game: ChessGame }) => {
+export const GameDetailsView = (props: { style: {}, game: ChessGame }) => {
     const { game } = props
     let moves = game.stateHistory.map((boardState, i) => {
         if (boardState.lastMovedPiece.pieceType) {
@@ -31,16 +39,30 @@ export const GameDetailsView = (props: { game: ChessGame }) => {
     });
 
     return (
-        <ul className="game-details" >
+        <ul className="game-details" style={props.style} >
             {moves}
         </ul>
     )
 }
 
-export const ChatView = () => {
+export const ChatView = (props: { style: {} }) => {
+    let { style } = props;
+    const [message, setMessage] = useState<string>("");
+
+    const sendMessage = (message: string) => {
+        if (message && message !== "")
+            onSendMessage({ message });
+    }
+
     return (
-        <div className="chat-screen">
-            <h1>This is the chat view</h1>
+        <div className="chat-screen" style={style}>
+            {/* <ul className="messages-list">{messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul> */}
+
+            <div className='chat-input-wrapper'>
+
+                <input type="text" onChange={(e) => { setMessage(e.target.value ?? "") }} />
+                <button onClick={() => { sendMessage(message) }}>Send</button>
+            </div>
         </div>
     )
 }
@@ -61,7 +83,7 @@ export const MoveItem = (props: { id: number, target: string, hasCaptured: boole
     let { id, hasCaptured, target, imgSrc, isInCheck, hasCastled, isInMate, isInStaleMate } = props;
     let actionSrc = '../../move-arrow.svg';
     if (isInStaleMate)
-    //TODO: Add stale-mate sound and img
+        //TODO: Add stale-mate sound and img
         actionSrc = '../../move-stalemate.svg'
     else if (isInCheck)
         actionSrc = '../../move-check.svg';

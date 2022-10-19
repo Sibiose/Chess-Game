@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { getTypeParameterOwner } from 'typescript';
+import { getSocket, ServerProvider } from './api/Server';
 import App from './App';
 import "./index.css"
 
@@ -10,7 +11,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <ServerProvider>
+      <App />
+    </ServerProvider>
   </React.StrictMode>
 );
 

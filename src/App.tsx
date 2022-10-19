@@ -1,32 +1,24 @@
-import { BoardView } from "./Views/BoardView";
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { DndProvider } from 'react-dnd'
 import { useState } from "react";
-import { PlayerColors } from "./Model/PieceEnums";
-import { ChessGame, useBoard } from "./Model/Board";
-import { PlayerDetailsView } from "./Views/PlayerDetailsView";
-import { BoardSideView } from "./Views/BoardSideView";
+import { RequestUsernameView } from "./Views/RequestUsernameView";
+import { useServer } from "./api/Server";
+import { PlayerDto, RoomDto, Server } from "./api/Server.dto"
+import { LobbyView } from "./Views/LobbyView";
+import { ConnectedTab } from "./Views/shared/ConnectedTab";
+import { RoomView } from "./Views/RoomView";
 
 
 function App() {
 
-  const [bottomPlayer, setBottomPlayer] = useState<PlayerColors>(PlayerColors.LIGHT);
-
-  const game: ChessGame = useBoard(bottomPlayer)
+  const server: Server = useServer();
+  const currentPlayer: PlayerDto | undefined = server.currentPlayer;
+  const currentRoom: RoomDto | undefined = currentPlayer?.room;
 
   return (
     <div className="App">
-      <main>
-        <PlayerDetailsView game={game} isBottom={false} />
-        <DndProvider backend={HTML5Backend}>
-          <BoardView game={game} />
-        </DndProvider>
-        <PlayerDetailsView game={game} isBottom={true} />
-      </main>
-      <aside>
-        <BoardSideView game={game} />
-      </aside>
-
+      <ConnectedTab connected={server.connected} />
+      {!currentPlayer?.username ? <RequestUsernameView  players={server.players.players} /> : null}
+      {currentPlayer?.username && currentRoom ? <RoomView currentRoom={currentRoom} /> : null}
+      {currentPlayer?.username && !currentRoom ? <LobbyView rooms={server.rooms.rooms} players={server.players.players} currentPlayer={currentPlayer} /> : null}
     </div>
   );
 }
