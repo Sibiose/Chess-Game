@@ -7,9 +7,6 @@ import { onPlayerMove } from "../api/Server";
 /**
  * An interface used for the boardState
  */
-export interface BoardState extends BoardStateSnapshot {
-    stateHistory: BoardStateSnapshot[]
-}
 
 export interface BoardStateSnapshot {
     bottomPlayer: PlayerColors;
@@ -25,6 +22,10 @@ export interface BoardStateSnapshot {
     hasCastledOnLastMove: boolean;
     timestamp?: number;
     currentSound?:string;
+}
+
+export interface BoardState extends BoardStateSnapshot {
+    stateHistory: BoardStateSnapshot[];
 }
 
 /**
