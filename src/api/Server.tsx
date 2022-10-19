@@ -1,7 +1,8 @@
 import { io } from "socket.io-client";
 import { createContext, useState, useEffect, useContext } from 'react'
-import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
+import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
 import { BoardState } from "../Model/Board";
+import { playSound } from "../Model/MovementLogic";
 
 const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
@@ -34,7 +35,7 @@ export const getSocket = (setState: any) => {
             });
         });
 
-        globalSocket.on('receivedServerState', (serverState: ServerState) => {
+        globalSocket.on('updatedServerState', (serverState: ServerState) => {
             setState((prevState: Server) => {
                 return { ...prevState, ...serverState }
             });
@@ -49,6 +50,12 @@ export const getSocket = (setState: any) => {
         globalSocket.on('updatedCurrentPlayer', (updatedCurrentPlayer: PlayerDto) => {
             setState((prevState: Server) => {
                 return { ...prevState, currentPlayer: { ...updatedCurrentPlayer } }
+            });
+        });
+
+        globalSocket.on('updatedCurrentRoom', (updatedCurrentRoom: RoomDto) => {
+            setState((prevState: Server) => {
+                return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: updatedCurrentRoom } }
             });
         });
 
@@ -84,6 +91,8 @@ export const getSocket = (setState: any) => {
                 }
                 return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
             });
+            console.log(newGameState.currentSound)
+            playSound(newGameState.currentSound ?? "Move");
         });
 
     }
@@ -115,7 +124,7 @@ export const onCreatePlayer = async (username: string) => {
     globalSocket.emit('createPlayer', username);
 }
 
-export const onUpdatePlayer = async (updatedPlayer: UpdatePlayerDto) => {
+export const onUpdatePlayer = async (playerId: string, updatedPlayer: UpdatePlayerDto) => {
     checkGlobalSocketExists();
     globalSocket.emit('updatePlayer', updatedPlayer)
 }

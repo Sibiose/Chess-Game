@@ -10,7 +10,6 @@ import { StatusBubble } from "./shared/StatusBubble";
 
 export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], currentPlayer: PlayerDto | undefined }) => {
     let { rooms, players, currentPlayer } = props;
-    console.log(rooms);
     const [openEditor, setopenEditor] = useState(false);
     return (
         <div

@@ -24,6 +24,7 @@ export interface BoardStateSnapshot {
     isInStaleMate: boolean;
     hasCastledOnLastMove: boolean;
     timestamp?: number;
+    currentSound?:string;
 }
 
 /**
@@ -82,7 +83,7 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
         { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 9 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 10 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 11 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 12 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 13 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 14 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 15 }, { pieceType: PieceType.PAWN, pieceColor: bottomPlayer, id: 16 },
         { pieceType: PieceType.ROOK, pieceColor: bottomPlayer, id: 1 }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 2 }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer, id: 3 }, { pieceType: PieceType.QUEEN, pieceColor: bottomPlayer, id: 4 }, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer, id: 6 }, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 7 }, { pieceType: PieceType.ROOK, pieceColor: bottomPlayer, id: 8 },
     ]
-    let newState = { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [], stateHistory: [], hasCapturedOnLastMove: false, lastMovedPiece: emptyCell, targetCellCode: '', isInCheck: false, hasCastledOnLastMove: false, isInMate: false, isInStaleMate: false }
+    let newState = { cells, bottomPlayer, currentPlayer: PlayerColors.LIGHT, capturedPieces: [], stateHistory: [], hasCapturedOnLastMove: false, lastMovedPiece: emptyCell, targetCellCode: '', isInCheck: false, hasCastledOnLastMove: false, isInMate: false, isInStaleMate: false, timestamp: new Date().getTime() }
 
     return { ...newState, stateHistory: [{ ...newState }] };
 }

@@ -2,31 +2,24 @@ import { useState } from "react"
 import { onCreatePlayer } from "../api/Server";
 import { PlayerDto } from "../api/Server.dto";
 
-export const RequestUsernameView = (props: { players: PlayerDto[], setUsername: (username: string) => void }) => {
-    let { setUsername, players } = props;
-    const [usernameInput, setUsernameInput] = useState('');
-    const [playerExists, setplayerExists] = useState<boolean>(false);
+export const RequestUsernameView = (props: { players: PlayerDto[] }) => {
+    let { players } = props;
+    const [username, setUsername] = useState<string>('');
     const [wrongInput, setWrongInput] = useState<boolean>(false);
-    console.log(players);
+    let playerExists = players.find(player => player.username === username) ? true : false;
+
     const enterUsername = (username: string) => {
-        let existingPlayer = players.find(player => player.username === username);
-        if (username === "") {
-            setWrongInput(true);
-            return
-        } else if (existingPlayer) {
-            setplayerExists(true);
-            return
-        } else {
-            setUsername(username);
+        if (username === '') setWrongInput(true);
+        else {
+            setWrongInput(false);
             onCreatePlayer(username);
         }
     }
 
-
     return (
         <div id="requestUsernameView">
             <h2 className="username-header">Please enter your username!</h2>
-            <input className="username-input" onKeyDown={(e) => { if (e.key === "Enter") enterUsername(usernameInput) }} type="text" onChange={(e) => { setUsernameInput(e.target.value ?? "") }} />
+            <input className="username-input" onKeyDown={(e) => { if (e.key === "Enter" && !playerExists) enterUsername(username) }} type="text" onChange={(e) => { setUsername(e.target.value ?? "") }} />
             {wrongInput || playerExists ? <p className="input-error username-error">{wrongInput ? 'Please choose a correct username' : playerExists ? 'Username already taken' : null}</p> : null}
         </div>
     )

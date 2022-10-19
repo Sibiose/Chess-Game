@@ -15,7 +15,7 @@ export interface Server {
 
 export interface RoomsDto {
     timestamp?: number,
-    rooms: Map<string, RoomDto>
+    roomsMap: Map<string, RoomDto>
 }
 
 export interface RoomDto {
@@ -45,7 +45,7 @@ export interface UpdateRoomDto {
 
 export interface PlayersDto {
     timestamp?: number,
-    players: Map<string, PlayerDto>
+    playersMap: Map<string, PlayerDto>
 }
 
 export interface PlayerDto {
