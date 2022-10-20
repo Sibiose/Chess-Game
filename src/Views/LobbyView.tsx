@@ -71,7 +71,7 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
 
     return (
         <div className="room-editor">
-            <h3>Create a new room to play with your friends or against a computer</h3>
+            <h3 className="room-editor-title">Create a new room to play with your friends or against a computer</h3>
             <div className="input-container">
                 <InputTextView label="Room Name" setInput={setRoomName} />
                 <InputRadioView label="Lock room" value1="Open" value2="Locked" inputState={isLocked} setInputState={setIsLocked} />
