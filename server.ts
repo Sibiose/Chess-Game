@@ -1,21 +1,21 @@
 import express from 'express';
-const app = express();
 import http from 'http';
-import { Server } from 'socket.io';
 import cors from 'cors'
+import { Server } from 'socket.io';
 import { createDefaultBoard, getOppositePlayer } from './src/Model/Board';
 import { PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
-app.use(cors());
 import { v4 as uuid } from 'uuid';
-import { log } from 'console';
+
+const app = express();
+app.use(cors());
 
 const server = http.createServer(app);
 let serverState: ServerState;
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000"]
+
     }
 })
 
@@ -77,9 +77,20 @@ export const setRoomsTimestamp = () => {
 
 // Socket connection handling
 io.on('connection', socket => {
-
     //Sending the current serverState once the socket connects to the server
     io.emit('updatedServerState', parseStateObject());
+    socket.on('checkPlayerCookies', (playerId: string) => {
+        if (getServerState().players.playersMap.has(playerId)) {
+            updatePlayer(playerId, { socketId: socket.id });
+            socket.join(playerId);
+            let roomId = getPlayerById(playerId)?.room?.id;
+            if (roomId && !socket.rooms.has(roomId)) {
+                socket.join(roomId);
+            }
+            io.to(playerId).emit('updatedCurrentPlayer', getPlayerById(playerId));
+        }
+    })
+
     //Creating the current session for a new socket
     socket.on('createPlayer', async (username: string) => {
         let newPlayer = addPlayer(socket.id, username);
@@ -118,6 +129,13 @@ io.on('connection', socket => {
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
+    });
+
+    socket.on('sendMessage', (roomId: string, message: MessageDto) => {
+        let messages = updateRoomMessages(roomId, message);
+        if (messages) {
+            io.to(roomId).emit('updatedMessages', messages);
+        }
     })
 
 });
@@ -152,7 +170,7 @@ export const getRoomById = (roomId: string) => {
 export const addRoom = (room: RoomRequest) => {
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
-    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false }
+    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [] }
     setRooms(id, newRoom);
 
     return newRoom
@@ -170,15 +188,24 @@ export const joinRoom = (roomId: string, playerId: string) => {
     let player = getPlayerById(playerId);
     let room = getRoomById(roomId)
     if (player && room) {
-        let roomLoad: UpdateRoomDto = { bottomPlayer: player, isFull: !room.isMultiplayer }
+        let roomLoad: UpdateRoomDto = { bottomPlayer: player, isFull: !room.isMultiplayer, joinedPlayers: room.joinedPlayers.concat(playerId) }
         let playerLoad: UpdatePlayerDto = { pieceColor: room.bottomPlayerColor };
         if (room.bottomPlayer) {
-            roomLoad = { topPlayer: player, isFull: true }
+            roomLoad = { topPlayer: player, isFull: true, joinedPlayers: room.joinedPlayers.concat(playerId) }
             playerLoad = { pieceColor: getOppositePlayer(room.bottomPlayerColor) };
         }
         updateRoom(roomId, roomLoad);
         updatePlayer(playerId, { room: getRoomById(roomId), ...playerLoad });
     };
+}
+
+export const updateRoomMessages = (roomId: string, message: MessageDto) => {
+    let room = getRoomById(roomId);
+    if (room) {
+        room.messages.messages = room.messages.messages.concat(message);
+        setRooms(roomId, room);
+        return getRoomById(roomId)?.messages;
+    }
 }
 
 //GAME METHODS
@@ -194,6 +221,9 @@ export const movePiece = (roomId: string, from: number, to: number) => {
         if (canMove(room.gameState, from, to)) {
             let gameState = move(room.gameState, from, to);
             setRooms(roomId, { ...room, gameState });
+            room.joinedPlayers.forEach(playerId => {
+                updatePlayer(playerId, { room: getRoomById(roomId) });
+            });
             return getRoomById(roomId)?.gameState;
         }
     }

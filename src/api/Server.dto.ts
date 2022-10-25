@@ -31,6 +31,7 @@ export interface RoomDto {
     messages: MessagesDto,
     gameState: any,
     isFull: boolean,
+    joinedPlayers:string[]
 }
 
 export interface UpdateRoomDto {

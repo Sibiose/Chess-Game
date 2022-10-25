@@ -3,17 +3,19 @@ import { createContext, useState, useEffect, useContext } from 'react'
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, Server, ServerState, UpdatePlayerDto } from "./Server.dto";
 import { BoardState } from "../Model/Board";
 import { playSound } from "../Model/MovementLogic";
+import { useCookies } from "react-cookie";
 
-const PORT: string = "http://localhost:7000"
+const PORT: string = "http://192.168.16.100:7000"
 let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
 
 export const ServerProvider = (props: any) => {
     const [state, setState] = useState({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
+    const [cookies, setCookie] = useCookies(['player']);
 
     useEffect(() => {
-        getSocket(setState)
+        getSocket(setState, cookies, setCookie)
     }, [true]);
 
     return <ServerContext.Provider value={state}>
@@ -25,11 +27,13 @@ export const useServer = () => {
     return useContext(ServerContext);
 }
 
-export const getSocket = (setState: any) => {
+export const getSocket = (setState: any, cookies: any, setCookie: any) => {
+
     if (!globalSocket) {
         globalSocket = io(PORT);
         globalSocket.on("connect", () => {
             console.log("Connected to Server");
+            globalSocket.emit('checkPlayerCookies', cookies.player);
             setState((prevState: Server) => {
                 return { ...prevState, connected: true }
             });
@@ -42,6 +46,9 @@ export const getSocket = (setState: any) => {
         });
 
         globalSocket.on('createdCurrentPlayer', (currentPlayer: PlayerDto) => {
+            setCookie('player', currentPlayer.id, {
+                maxAge: 172800
+            });
             setState((prevState: Server) => {
                 return { ...prevState, currentPlayer }
             });
@@ -66,9 +73,15 @@ export const getSocket = (setState: any) => {
             });
         });
 
-        globalSocket.on("receivedMessage", (messages: MessagesDto) => {
+        globalSocket.on("updatedMessages", (messages: MessagesDto) => {
             setState((prevState: Server) => {
-                return { ...prevState, messages }
+                let playerRoom = prevState.currentPlayer?.room;
+                if (playerRoom) {
+                    playerRoom.messages = { ...messages }
+                    console.log(messages);
+                    return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
+                }
+                
             });
         });
 
@@ -104,9 +117,9 @@ const checkGlobalSocketExists = () => {
         throw Error("INVALID USAGE!")
 }
 
-export const onSendMessage = async (message: MessageDto) => {
+export const onSendMessage = async (roomId: string, message: MessageDto) => {
     checkGlobalSocketExists();
-    globalSocket.emit('sendMessage', message);
+    globalSocket.emit('sendMessage', roomId, message);
 }
 
 export const onCreateNewRoom = async (playerdId: string, room: RoomRequest) => {
@@ -133,50 +146,3 @@ export const onPlayerMove = async (roomId: string, from: number, to: number) => 
     checkGlobalSocketExists();
     globalSocket.emit('playerMove', roomId, from, to);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// export const onReceivedMessage = (socket:Socket, message:string) => {
-//     socket.on('receivedMessage', (message)=>{
-
-//     })
-// }
-
-//SendMessage
-
-//Add context - Nope
-
-
-//TODO:Multiplayer sockets
-// Manage Connections to server from here
-
-// Allow verifying moves and validation for front-end
-//Send move information to backend
-//Store state in backend
-//Make validation canMove && move in backend
-//Send new State back and update the state with the game.move function in relation to the response got from backend
-//change game.move, game.switchPlayer
-
-//Change BoardState to BoardStateSnapshot
-
-//Add stateHistory:BoardStateSnapshot[] to BoardState
-
-
-//    socket.on("receivedState", (boardState) => {
-//    console.log(boardState)
-//});
