@@ -1,5 +1,5 @@
-import { useServer } from "../api/Server";
-import { ChessGame, getOppositePlayer } from "../Model/Board"
+import { useServer } from "../../api/Server";
+import { ChessGame, getOppositePlayer } from "../../Model/Board"
 
 export const PlayerDetailsView = (props: { game: ChessGame, isBottom: boolean, username: string }) => {
     let currentPlayer = useServer().currentPlayer

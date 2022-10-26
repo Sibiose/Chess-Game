@@ -1,8 +1,8 @@
-import { ChessGame } from "../Model/Board";
-import { Cell, indexToPosition } from "../Model/Cell";
+import { ChessGame } from "../../Model/Board";
+import { Cell, indexToPosition } from "../../Model/Cell";
 import { PieceView } from "./PieceView";
 import { useDrop } from "react-dnd";
-import { useServer } from "../api/Server";
+import { useServer } from "../../api/Server";
 
 export const CellView = (props: { index: number, game: ChessGame }) => {
     let { game, index } = props;

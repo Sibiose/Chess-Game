@@ -1,5 +1,5 @@
 import { CellView } from "./CellView";
-import { ChessGame } from "../Model/Board";
+import { ChessGame } from "../../Model/Board";
 
 export const BoardView = (props: { game: ChessGame }) => {
 
