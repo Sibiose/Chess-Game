@@ -268,6 +268,22 @@ export const movePiece = (roomId: string, from: number, to: number) => {
             return getRoomById(roomId)?.gameState;
         }
     }
+}
 
+export const seedRooms = (n: number) => {
+    for (let i = 0; i < n; i++) {
+        let room: RoomDto = { id: "", name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [] }
+        getServerState().rooms.roomsMap.set(uuid(), room);
+    }
 
 }
+
+export const seedPlayers = (n: number) => {
+    for (let i = 0; i < n; i++) {
+        let player: PlayerDto = { id: "", createdAt: Date.now(), socketId: "", username: `Player ${i}` }
+        getServerState().players.playersMap.set(uuid(), player);
+    }
+}
+
+seedRooms(23);
+seedPlayers(15);

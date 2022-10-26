@@ -1,0 +1,39 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --table-width: 80%;
+    --prm-color: #34495E;
+    --background-color-dark: #1a2530;
+    --background-color-medium: #2C3E50;
+    --secondary-color-light: #ECF0F1;
+    --prm-color-transparent: #58738e;
+    --cta: #E67E22;
+    --danger: #E74C3C;
+    --disabled: #7F8C8D;
+}
+
+.player-details {
+    display: flex;
+    background-color: var(--prm-color);
+    justify-content: space-between;
+    padding: 0.8rem;
+    align-items: center;
+    color: white;
+}
+
+.player-details-activated {
+    background-color: var(--prm-color-transparent);
+}
+
+.captured-pieces-container {
+    height: 1.7rem;
+}
+
+.captured-piece-icon {
+    width: 1.7rem;
+}

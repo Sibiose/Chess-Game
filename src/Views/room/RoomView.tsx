@@ -6,6 +6,8 @@ import { ChessGame, useBoard } from "../../Model/Board"
 import { BoardSideView } from "./BoardSideView"
 import { BoardView } from "./BoardView"
 import { PlayerDetailsView } from "./PlayerDetailsView"
+import "../../styles/board.css";
+import "../../styles/board-side.css";
 
 export const RoomView = () => {
     let currentPlayer = useServer().currentPlayer;

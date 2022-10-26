@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --table-width: 80%;
+    --prm-color: #34495E;
+    --background-color-dark: #1a2530;
+    --background-color-medium: #2C3E50;
+    --secondary-color-light: #ECF0F1;
+    --prm-color-transparent: #58738e;
+    --cta: #E67E22;
+    --danger: #E74C3C;
+    --disabled: #7F8C8D;
+}
+
+#chess-table {
+    margin: 0.5rem;
+    width: 80vh;
+    display: grid;
+    grid-template-columns: repeat(8, 12.5%);
+    height: 80vh;
+    border: 1px solid black;
+}
+
+.chess-cell {
+    width: 100%;
+    height: 100%;
+    background-color: var(--secondary-color-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.dark-chess-cell {
+    background-color: var(--prm-color);
+}
+
+
+.piece-img {
+    position: absolute;
+    height: 70%;
+    width: 70%;
+}

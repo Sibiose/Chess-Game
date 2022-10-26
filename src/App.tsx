@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { RequestUsernameView } from "./Views/RequestUsernameView";
 import { useServer } from "./api/Server";
 import { PlayerDto, RoomDto, Server } from "./api/Server.dto"
@@ -6,6 +5,8 @@ import { LobbyView } from "./Views/lobby/LobbyView";
 import { ConnectedTab } from "./Views/shared/ConnectedTab";
 import { RoomView } from "./Views/room/RoomView";
 import { CookiesProvider } from "react-cookie";
+import "./styles/lobby.css";
+import "./styles/room.css";
 
 
 function App() {

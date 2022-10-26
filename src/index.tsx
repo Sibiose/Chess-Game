@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { getTypeParameterOwner } from 'typescript';
-import { getSocket, ServerProvider } from './api/Server';
+import { ServerProvider } from './api/Server';
 import App from './App';
 import "./index.css"
 
