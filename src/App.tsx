@@ -20,7 +20,7 @@ function App() {
       <div className="App">
         <ConnectedTab connected={server.connected} />
         {!currentPlayer?.username ? <RequestUsernameView players={server.players.players} /> : null}
-        {currentPlayer?.username && currentRoom ? <RoomView currentRoom={currentRoom} /> : null}
+        {currentPlayer?.username && currentRoom ? <RoomView /> : null}
         {currentPlayer?.username && !currentRoom ? <LobbyView rooms={server.rooms.rooms} players={server.players.players} currentPlayer={currentPlayer} /> : null}
       </div>
     </CookiesProvider>

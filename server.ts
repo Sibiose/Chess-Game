@@ -124,6 +124,18 @@ io.on('connection', socket => {
         }
     });
 
+    socket.on('leaveRoom', (roomId: string, playerId: string) => {
+        let room = getRoomById(roomId);
+        let player = getPlayerById(playerId);
+        if (room && player && player.room?.id === roomId) {
+            socket.leave(roomId);
+            leaveRoom(roomId, playerId);
+            io.to(playerId).emit('updatedCurrentPlayer', getPlayerById(playerId));
+            io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
+            io.emit('updatedServerState', parseStateObject());
+        }
+    })
+
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
         let newState = movePiece(roomId, from, to);
         if (newState) {
@@ -136,7 +148,7 @@ io.on('connection', socket => {
         if (messages) {
             io.to(roomId).emit('updatedMessages', messages);
         }
-    })
+    });
 
 });
 
@@ -158,6 +170,13 @@ export const updatePlayer = (playerId: string, updatedPlayer: UpdatePlayerDto) =
     let player = getPlayerById(playerId)
     if (player) {
         return setPlayers(playerId, { ...player, ...updatedPlayer })
+    }
+}
+
+export const deletePlayer = (playerId: string) => {
+    let player = getPlayerById(playerId);
+    if (player) {
+        getServerState().players.playersMap.delete(playerId);
     }
 }
 
@@ -197,6 +216,28 @@ export const joinRoom = (roomId: string, playerId: string) => {
         updateRoom(roomId, roomLoad);
         updatePlayer(playerId, { room: getRoomById(roomId), ...playerLoad });
     };
+}
+
+export const leaveRoom = (roomId: string, playerId: string) => {
+    let player = getPlayerById(playerId);
+    let room = getRoomById(roomId);
+    if (player && room && player?.room?.id === roomId) {
+        setPlayers(playerId, { ...player, room: undefined });
+        let leavingPlayer = room?.bottomPlayer?.id === playerId ? { bottomPlayer: undefined } : { topPlayer: undefined };
+        let remainingPlayers = room?.joinedPlayers.filter(id => id !== playerId);
+        if (remainingPlayers.length) {
+            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer });
+        } else {
+            deleteRoom(roomId);
+        }
+    }
+}
+
+export const deleteRoom = (roomId: string) => {
+    let room = getRoomById(roomId);
+    if (room) {
+        getServerState().rooms.roomsMap.delete(roomId);
+    }
 }
 
 export const updateRoomMessages = (roomId: string, message: MessageDto) => {

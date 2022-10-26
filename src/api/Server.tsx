@@ -5,7 +5,7 @@ import { BoardState } from "../Model/Board";
 import { playSound } from "../Model/MovementLogic";
 import { useCookies } from "react-cookie";
 
-const PORT: string = "http://192.168.16.100:7000"
+const PORT: string = "http://localhost:7000"
 let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
@@ -81,7 +81,6 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
                     console.log(messages);
                     return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
                 }
-                
             });
         });
 
@@ -132,6 +131,11 @@ export const onJoinRoom = async (roomId: string, playerId: string | undefined) =
     globalSocket.emit('joinRoom', roomId, playerId)
 }
 
+export const onLeaveRoom = async (roomId: String, playerId: string | undefined) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('leaveRoom', roomId, playerId);
+}
+
 export const onCreatePlayer = async (username: string) => {
     checkGlobalSocketExists();
     globalSocket.emit('createPlayer', username);
@@ -146,3 +150,5 @@ export const onPlayerMove = async (roomId: string, from: number, to: number) => 
     checkGlobalSocketExists();
     globalSocket.emit('playerMove', roomId, from, to);
 }
+
+
