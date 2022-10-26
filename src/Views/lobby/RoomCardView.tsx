@@ -7,7 +7,7 @@ export const RoomCardView = (props: { room: RoomDto }) => {
     let joinedDisabled = room.isFull;
     return (
         <div className="room-card">
-            <h3 className="room-name">{room.name}</h3>
+            <h3 title={room.name} className="room-name text-overflow-ellipsis">{room.name}</h3>
             <div className="room-details">
                 <p className="room-type">{room.isMultiplayer ? 'PvP' : 'PvAi'}</p>
                 <p className="room-password">{room.isLocked ? 'Password Required' : 'Open Room'}</p>

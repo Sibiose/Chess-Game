@@ -4,7 +4,7 @@ export const InputTextView = (props: { label: string, disabled?: boolean, setInp
     return (
         <div className="general-text-input">
             <label>{props.label}</label>
-            <input disabled={props.disabled ? true : false} maxLength={10} placeholder={`Choose a ${props.label}`} type="text" onChange={(e) => props.setInput(e.target.value ?? "")} />
+            <input disabled={props.disabled ? true : false} maxLength={40} placeholder={`Choose a ${props.label}`} type="text" onChange={(e) => props.setInput(e.target.value ?? "")} />
         </div>
     )
 }
