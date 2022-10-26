@@ -71,6 +71,17 @@ body {
   align-items: center;
   color: white;
 }
+.player-details-activated{
+  background-color: var(--prm-color-transparent);
+}
+.my-turn{
+  color:white;
+  font-size:1.3rem;
+  font-weight: 100;
+  text-align: center;
+  padding:0.4rem;
+  border-top: 3px solid var(--background-color-dark);
+}
 
 .captured-pieces-container {
   height: 1.7rem;
@@ -82,7 +93,7 @@ body {
 
 .board-side-wrapper {
   width: 300px;
-  height: 400px;
+  height: 450px;
   background-color: var(--prm-color);
   margin-left: 3rem;
   display: flex;
@@ -124,6 +135,18 @@ body {
 
 .chat-btn {
   border-bottom-right-radius: 10px;
+}
+
+.leave-room-btn{
+  margin-left: 7rem;
+  padding:0.4rem 2rem;
+  background-color: var(--cta);
+  border: none;
+  color:var(--secondary-color-light);
+  font-size:1.2rem;
+  border-radius: 10px;
+  cursor:pointer;
+  margin-top: 1rem;
 }
 
 .move-item {

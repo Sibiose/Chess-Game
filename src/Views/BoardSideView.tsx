@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { onSendMessage, } from "../api/Server";
-import { Server, MessageDto, MessagesDto } from "../api/Server.dto"
+import { onSendMessage, useServer, } from "../api/Server";
+import { Server, MessageDto, MessagesDto, RoomDto } from "../api/Server.dto"
 import { ChessGame } from "../Model/Board";
 
 
@@ -10,20 +10,26 @@ export let displayNone = {
 
 export const BoardSideView = (props: { game: ChessGame }) => {
     const { game } = props
+    let currentPlayer = useServer().currentPlayer
     const handleChat = (newState: boolean) => {
         setchatState(newState);
     }
-
+    let myTurn = game.isPlayerTurn(currentPlayer?.pieceColor);
     const [chatState, setchatState] = useState(false);
 
     return (
         <div className="board-side-wrapper">
             <ChatView style={chatState ? {} : displayNone} />
             <GameDetailsView game={game} style={chatState ? displayNone : {}} />
+
             <div className="details-buttons">
                 <button className="game-details-btn" onClick={() => handleChat(false)}>Game details</button>
                 <button className="chat-btn" onClick={() => handleChat(true)}>Chat</button>
             </div>
+            <div className="my-turn">
+                <p>{`${myTurn ? 'Your' : 'Opponent'} turn`}</p>
+            </div>
+
         </div>
     )
 }
@@ -46,22 +52,23 @@ export const GameDetailsView = (props: { style: {}, game: ChessGame }) => {
 }
 
 export const ChatView = (props: { style: {} }) => {
+    let room: RoomDto | undefined = useServer().currentPlayer?.room;
     let { style } = props;
     const [message, setMessage] = useState<string>("");
 
-    const sendMessage = (message: string) => {
-        if (message && message !== "")
-            onSendMessage({ message });
+    const sendMessage = (roomId: string | undefined, message: string) => {
+        if (message && message !== "" && roomId)
+            onSendMessage(roomId, { message, author: '' });
     }
 
     return (
         <div className="chat-screen" style={style}>
-            {/* <ul className="messages-list">{messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul> */}
+            <ul className="messages-list">{room?.messages?.messages.map((message, i) => <li className="message-item" key={i}>{message.message}</li>)}</ul>
 
             <div className='chat-input-wrapper'>
 
                 <input type="text" onChange={(e) => { setMessage(e.target.value ?? "") }} />
-                <button onClick={() => { sendMessage(message) }}>Send</button>
+                <button onClick={() => { sendMessage(room?.id, message) }}>Send</button>
             </div>
         </div>
     )
