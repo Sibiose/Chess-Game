@@ -22,11 +22,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 3rem;
     color: var(--secondary-color-light);
-    width: 100vw;
-    height: 100vh;
-
+    width: 100%;
 }
 
 .lobby-header-wrapper {
@@ -34,10 +31,12 @@
     flex-direction: column;
     align-items: center;
     background-color: var(--prm-color);
+    min-width: 325px;
     width: 100%;
     padding: 1rem;
     border-radius: 15px;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 .lobby-title {
@@ -52,12 +51,14 @@
 .room-list {
     display: grid;
     width: 85%;
+    justify-content: center;
     background-color: var(--background-color-dark);
     border-radius: 15px;
     padding: 2rem;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(auto-fill, 200px);
     column-gap: 10px;
     row-gap: 20px;
+    column-gap: 2rem;
 
 }
 
@@ -98,6 +99,7 @@
 .open-editor-btn {
     padding: 0.8rem;
     border-radius: 10px;
+    min-width: 250px;
     width: 30%;
     border: none;
     cursor: pointer;
@@ -110,7 +112,7 @@
 .room-editor {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 32rem;
     transform: translate(-50%, -50%);
     background-color: var(--background-color-dark);
     max-width: 1000px;
@@ -131,14 +133,16 @@
 }
 
 .lobby-overlay {
-    min-width: 100vw;
-    min-height: 100vh;
+    width: 100%;
+    min-height: 100%;
     background-color: var(--prm-color);
-    opacity: 0.6;
+    opacity: 0.7;
     position: absolute;
-    top: 0;
-    left: 0;
+    border-radius: 15px;
+    left: 50%;
+    top: 50%;
     z-index: 3;
+    transform: translate(-50%, -50%);
 }
 
 .general-text-input {
@@ -216,7 +220,9 @@
 }
 
 .players-wrapper {
+    margin-top: 2rem;
     width: 14%;
+    min-width: 250px;
     background-color: var(--prm-color);
     border-radius: 10px;
     height: 30rem;
@@ -255,12 +261,12 @@
 .connected-tab {
     position: absolute;
     top: 1rem;
-    right: 1rem;
+    right: 3rem;
 }
 
 .status-bubble {
-    width: 0.7rem;
-    height: 0.7rem;
+    width: 0.6rem;
+    height: 0.6rem;
     margin-right: 1rem;
     border-radius: 50%;
 }
@@ -268,4 +274,10 @@
 .disabled-btn,
 .disabled-btn:hover {
     background-color: var(--disabled);
+}
+
+@media (max-width:650px) {
+    .lobby-title {
+        font-size: 1.5rem;
+    }
 }
