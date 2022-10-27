@@ -42,8 +42,10 @@
 .room-section {
     width: fit-content;
     display: flex;
+    padding:2rem;
     margin-left:auto;
     margin-right:auto;
+    
 }
 
 .room-main {
