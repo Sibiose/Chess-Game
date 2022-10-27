@@ -51,7 +51,7 @@
 
 .room-list {
     display: grid;
-    width: 85%;
+    width: 80%;
     justify-content: center;
     background-color: var(--background-color-dark);
     border-radius: 15px;
@@ -220,7 +220,6 @@
 
 .lobby-main-section {
     display: flex;
-    justify-content: space-between;
     width: 100%;
 }
 
