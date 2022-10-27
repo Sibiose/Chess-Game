@@ -20,7 +20,7 @@
 .App {
   display: flex;
   width:100vw;
-  padding:3rem;
+  padding:2rem;
 }
 
 html,
@@ -56,6 +56,7 @@ body {
   margin-bottom: 2rem;
   color: var(--secondary-color-light);
   font-size: 2.5rem;
+  text-align: center;
 }
 
 .username-error {

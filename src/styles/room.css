@@ -32,8 +32,33 @@
 
 .captured-pieces-container {
     height: 1.7rem;
+    min-width: fit-content;
 }
 
 .captured-piece-icon {
     width: 1.7rem;
+}
+
+.room-section {
+    width: fit-content;
+    display: flex;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.room-main {
+    min-width: 41rem;
+    min-height: 41rem;
+    width: 80vh;
+    height: 80vh;
+    max-width: 90rem;
+    max-height: 90rem;
+}
+
+.room-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 3rem;
+    min-width: 350px;
 }

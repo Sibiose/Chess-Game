@@ -15,9 +15,8 @@ export const PlayerDetailsView = (props: { game: ChessGame, isBottom: boolean, u
 
     return (
         <div className={`${myTurn ? 'player-details-activated player-details' : 'player-details'}`}>
-            <h2 className="player-name">{username}</h2>
+            <h2 title={username} className="player-name text-overflow-ellipsis">{username}</h2>
             <div className="captured-pieces-container">{capturedPieces}</div>
-            <h2 className="timer">10:00</h2>
         </div>
 
     )

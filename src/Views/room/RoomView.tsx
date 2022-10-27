@@ -14,18 +14,18 @@ export const RoomView = () => {
     let currentRoom = currentPlayer?.room
     const game: ChessGame = useBoard(currentRoom?.id ?? "", currentRoom?.gameState);
     return (
-        <>
-            <main>
+        <section className="room-section">
+            <main className="room-main">
                 <PlayerDetailsView game={game} isBottom={false} username={currentRoom?.topPlayer?.username ? currentRoom.topPlayer.username : "Waiting for player"} />
                 <DndProvider backend={HTML5Backend}>
                     <BoardView game={game} />
                 </DndProvider>
                 <PlayerDetailsView game={game} isBottom={true} username={currentRoom?.bottomPlayer?.username ? currentRoom.bottomPlayer.username : "Waiting for player"} />
             </main>
-            <aside>
+            <aside className="room-aside">
                 <BoardSideView game={game} />
                 <button className="leave-room-btn" onClick={() => { onLeaveRoom(currentRoom?.id ?? "", currentPlayer?.id ?? "") }}>Leave Room</button>
             </aside>
-        </>
+        </section>
     )
 }
