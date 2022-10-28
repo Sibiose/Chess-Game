@@ -78,7 +78,6 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
                 let playerRoom = prevState.currentPlayer?.room;
                 if (playerRoom) {
                     playerRoom.messages = { ...messages }
-                    console.log(messages);
                     return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
                 }
             });

@@ -12,7 +12,9 @@ import "../../styles/board-side.css";
 export const RoomView = () => {
     let currentPlayer = useServer().currentPlayer;
     let currentRoom = currentPlayer?.room
+
     const game: ChessGame = useBoard(currentRoom?.id ?? "", currentRoom?.gameState);
+    let myTurn = game.isPlayerTurn(currentPlayer?.pieceColor);
     return (
         <section className="room-section">
             <main className="room-main">
@@ -24,7 +26,10 @@ export const RoomView = () => {
             </main>
             <aside className="room-aside">
                 <BoardSideView game={game} />
-                <button className="leave-room-btn" onClick={() => { onLeaveRoom(currentRoom?.id ?? "", currentPlayer?.id ?? "") }}>Leave Room</button>
+                <div className="my-turn">
+                    <h3>{`${myTurn ? 'Your' : 'Opponent'} turn`}</h3>
+                </div>
+                <button className="leave-room-btn" onClick={() => { onLeaveRoom(currentRoom?.id ?? "", currentPlayer?.id ?? "") }}>Leave Room</button>                
             </aside>
         </section>
     )
