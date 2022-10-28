@@ -18,14 +18,12 @@
 }
 
 .board-side-wrapper {
-    width: 300px;
-    height: 450px;
+    width: 100%;
+    height: 500px;
     background-color: var(--prm-color);
-    margin-left: 3rem;
     display: flex;
     flex-direction: column;
     border-radius: 10px;
-    border-bottom: 3px solid var(--background-color-dark);
 }
 
 .game-details,
@@ -64,15 +62,14 @@
 }
 
 .leave-room-btn {
-    margin-left: 7rem;
-    padding: 0.4rem 2rem;
+    padding: 0.5rem 3rem;
     background-color: var(--cta);
     border: none;
     color: var(--secondary-color-light);
     font-size: 1.2rem;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 1rem;
+    margin-top: 3rem;
 }
 
 .move-item {

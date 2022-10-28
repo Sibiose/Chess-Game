@@ -19,12 +19,12 @@
 
 .App {
   display: flex;
+  width:100vw;
 }
 
 html,
 body {
-  width: 100vw;
-  height: 100vh;
+  width:100vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,6 +33,10 @@ body {
 }
 
 #requestUsernameView {
+  position: absolute;
+  top:50%;
+  left:50%;
+  transform: translate(-50%,-50%);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -51,16 +55,13 @@ body {
   margin-bottom: 2rem;
   color: var(--secondary-color-light);
   font-size: 2.5rem;
+  text-align: center;
 }
-
-
 
 .username-error {
   margin-top: 0.5rem;
   font-size: 1.3rem;
 }
-
-
 
 @media (max-width:725px) {
   .general-text-input {

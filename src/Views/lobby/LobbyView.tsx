@@ -14,12 +14,14 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
             }}
             id="lobby" >
             <div className="lobby-header-wrapper">
-                <h1 className="lobby-title">Welcome to Lobby, {currentPlayer?.username ?? 'Guest'} </h1>
+                <h1 className="lobby-title">Welcome to Lobby, <span className="no-word-break">{currentPlayer?.username ?? 'Guest'}</span> </h1>
                 <p className="lobby-desc">Join one of the existing rooms, or create a new room. Have fun!</p>
             </div>
             <button onClick={() => { setopenEditor(true) }} className="open-editor-btn">Create a new Room</button>
+
             {openEditor ? <LobbyOverlayView setopenEditor={setopenEditor} /> : null}
             {openEditor ? <RoomEditorView setopenEditor={setopenEditor} /> : null}
+
             <section className="lobby-main-section">
                 <main className="room-list">
                     {rooms.map((room, i) => <RoomCardView key={i} room={room} />)}
@@ -29,9 +31,9 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
                     <ul className="players-list">
                         {players.map((player, i) => {
                             if (player.username) {
-                                return <li key={i} className="player-list-item">
+                                return <li title={player.username} key={i} className="player-list-item">
                                     <StatusBubble status={player.room ? true : false} />
-                                    {player.username}</li>
+                                    <span className="text-overflow-ellipsis">{player.username}</span></li>
                             }
                             return null
                         }
