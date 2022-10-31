@@ -1,8 +1,6 @@
-import { useServer } from "../../api/Server";
 import { ChessGame, getOppositePlayer } from "../../Model/Board"
 
 export const PlayerDetailsView = (props: { game: ChessGame, isBottom: boolean, username: string }) => {
-    let currentPlayer = useServer().currentPlayer
     const { game, isBottom, username } = props;
     let playerColor = isBottom ? game.bottomPlayer : getOppositePlayer(game.bottomPlayer);
     let myTurn = game.isPlayerTurn(playerColor);

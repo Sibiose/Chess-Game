@@ -13,7 +13,7 @@ export const BoardSideView = (props: { game: ChessGame }) => {
     let messages = useServer().currentPlayer?.room?.messages;
 
     useEffect(() => {
-        if (!chatState) {
+        if (!chatState && messages?.messages.length) {
             setactiveNotification('chat-btn active-notification')
         }
     }, [messages])

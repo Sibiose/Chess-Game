@@ -28,7 +28,7 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
                 <p style={error ? {} : displayNone} className="input-error">Please check that all fields are corect!</p>
             </div>
             <button className="create-room-btn" onClick={async () => {
-                let isError = createRoom(currentPlayer?.id ?? "", isLocked, isMultiplayer, roomName, password, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT);
+                let isError = createRoom(isLocked, isMultiplayer, roomName, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT, isLocked ? password : undefined, currentPlayer?.id);
                 setError(isError);
                 if (!isError)
                     setopenEditor(false);
@@ -37,13 +37,14 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
     )
 }
 
-export const createRoom = (playerId: string, isLocked: boolean, isMultiplayer: boolean, roomName: string, password: string, bottomPlayerColor: PlayerColors) => {
+export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, bottomPlayerColor: PlayerColors, password?: string, playerId?: string,) => {
     if (roomName === "")
         return true
     if (isLocked && password === "")
         return true
-
-    onCreateNewRoom(playerId, { name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor });
+    if (playerId) {
+        onCreateNewRoom(playerId, { name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor });
+    }
     return false
 
 }

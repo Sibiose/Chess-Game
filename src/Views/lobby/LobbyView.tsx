@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { onJoinRoom, useServer } from "../../api/Server";
 import { PlayerDto, RoomDto } from "../../api/Server.dto";
 import { StatusBubble } from "../shared/StatusBubble";
 import { RoomCardView } from "./RoomCardView";
@@ -7,6 +8,9 @@ import { RoomEditorView } from "./RoomEditorView";
 export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], currentPlayer: PlayerDto | undefined }) => {
     let { rooms, players, currentPlayer } = props;
     const [openEditor, setopenEditor] = useState(false);
+    const [openPasswordModal, setopenPasswordModal] = useState(false);
+    const [roomSelected, setRoomSelected] = useState<RoomDto | null>(null);
+
     return (
         <div
             style={{
@@ -19,12 +23,12 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
             </div>
             <button onClick={() => { setopenEditor(true) }} className="open-editor-btn">Create a new Room</button>
 
-            {openEditor ? <LobbyOverlayView setopenEditor={setopenEditor} /> : null}
+            {openEditor || openPasswordModal ? <LobbyOverlayView setopenEditor={setopenEditor} setopenPasswordModal={setopenPasswordModal} /> : null}
             {openEditor ? <RoomEditorView setopenEditor={setopenEditor} /> : null}
-
+            {openPasswordModal ? <PasswordModalView room={roomSelected} /> : null}
             <section className="lobby-main-section">
                 <main className="room-list">
-                    {rooms.map((room, i) => <RoomCardView key={i} room={room} />)}
+                    {rooms.map((room, i) => <RoomCardView setopenPasswordModal={setopenPasswordModal} setRoomSelected={setRoomSelected} key={i} room={room} />)}
                 </main>
                 <aside className="players-wrapper">
                     <h2 className="players-list-title">Online Players</h2>
@@ -47,10 +51,41 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
 
 
 
-export const LobbyOverlayView = (props: { setopenEditor: (openEditor: boolean) => void }) => {
-    let { setopenEditor } = props;
+export const LobbyOverlayView = (props: { setopenPasswordModal: (openPasswordModal: boolean) => void, setopenEditor: (openEditor: boolean) => void }) => {
+    let { setopenEditor, setopenPasswordModal } = props;
     return (
-        <div onClick={() => { setopenEditor(false) }} className="lobby-overlay"></div>
+        <div onClick={() => {
+            setopenEditor(false);
+            setopenPasswordModal(false)
+        }} className="lobby-overlay"></div>
     )
 }
 
+export const PasswordModalView = (props: { room: RoomDto | null }) => {
+    const currentPlayer = useServer()?.currentPlayer;
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<boolean>(false);
+    let { room } = props;
+
+    const handlePassword = (password: string, roomPassword?: string, roomId?: string, playerId?: string) => {
+        if (roomId && playerId && roomPassword) {
+            if (password === roomPassword) {
+                onJoinRoom(roomId, playerId);
+            } else {
+                setError(true);
+            }
+        }
+    }
+
+    return (
+        <div className="password-modal">
+            <h3 className="password-modal-title">Please enter the room password</h3>
+            <input onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    handlePassword(password, room?.password, room?.id, currentPlayer?.id)
+                }
+            }} value={password} className="password-modal-input" type="text" name="" onChange={(e) => { setPassword(e.currentTarget.value ?? "") }} />
+            {error ? <p className="wrong-password-error">Incorrect password!</p> : null}
+        </div>
+    )
+}

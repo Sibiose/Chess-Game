@@ -1,10 +1,10 @@
-import { useState } from 'react'
-
 export const InputTextView = (props: { label: string, disabled?: boolean, setInput: (input: string) => void }) => {
     return (
         <div className="general-text-input">
             <label>{props.label}</label>
-            <input disabled={props.disabled ? true : false} maxLength={40} placeholder={`Choose a ${props.label}`} type="text" onChange={(e) => props.setInput(e.target.value ?? "")} />
+            <input style={{
+                backgroundColor: props.disabled ? "var(--disabled)" : "var(--secondary-color-light)"
+            }} disabled={props.disabled ? true : false} maxLength={40} placeholder={`Choose a ${props.label}`} type="text" onChange={(e) => props.setInput(e.target.value ?? "")} />
         </div>
     )
 }

@@ -19,7 +19,7 @@
 
 #lobby {
     position: relative;
-    margin:2rem;
+    margin: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -76,7 +76,7 @@
 }
 
 .room-name {
-    width:100%;
+    width: 100%;
     text-align: center;
 }
 
@@ -115,9 +115,9 @@
 }
 
 .room-editor {
-    position: absolute;
+    position: fixed;
     left: 50%;
-    top: 32rem;
+    top: 50%;
     transform: translate(-50%, -50%);
     background-color: var(--background-color-dark);
     max-width: 1000px;
@@ -165,7 +165,6 @@
     background-color: var(--secondary-color-light);
     border: none;
     border-radius: 10px;
-
 }
 
 .general-text-input label {
@@ -290,6 +289,46 @@
 .disabled-btn,
 .disabled-btn:hover {
     background-color: var(--disabled);
+}
+
+.password-modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--background-color-dark);
+    max-width: 600px;
+    width: 80%;
+    min-width: 400px;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4rem;
+    border-radius: 20px;
+}
+
+.password-modal-title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.password-modal-input {
+    padding: 0.8rem;
+    width: 70%;
+    background-color: var(--secondary-color-light);
+    border: none;
+    border-radius: 10px;
+    font-size:1.2rem;
+}
+.wrong-password-error{
+    color:var(--danger);
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+.disabled{
+    background-color: red;
 }
 
 @media (max-width:650px) {
