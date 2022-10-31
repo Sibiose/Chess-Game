@@ -3,10 +3,11 @@ import http from 'http';
 import cors from 'cors'
 import { Server } from 'socket.io';
 import { createDefaultBoard, getOppositePlayer } from './src/Model/Board';
-import { PlayerColors } from './src/Model/PieceEnums';
+import { PieceType, PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
 import { v4 as uuid } from 'uuid';
+import { Cell, emptyCell } from './src/Model/Cell';
 
 const app = express();
 app.use(cors());
@@ -276,7 +277,23 @@ export const seedRooms = (n: number) => {
         let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [] }
         getServerState().rooms.roomsMap.set(id, room);
     }
-
+}
+export const seedStalemateRoom = () => {
+    let bottomPlayer = PlayerColors.LIGHT;
+    let topPlayer = PlayerColors.DARK;
+    let cells: Cell[] = [
+        emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer, id: 26 }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer, id: 27 }, { pieceType: PieceType.QUEEN, pieceColor: topPlayer, id: 28 }, { pieceType: PieceType.KING, pieceColor: topPlayer, id: 29 }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer, id: 30 }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer, id: 31 }, { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 32 },
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 25 }, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
+        emptyCell, emptyCell, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
+    ]
+    let id = uuid()
+    let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [] }
+    getServerState().rooms.roomsMap.set(id, room);
 }
 
 export const seedPlayers = (n: number) => {
@@ -288,5 +305,5 @@ export const seedPlayers = (n: number) => {
 }
 
 seedRooms(100);
-
+seedStalemateRoom();
 seedPlayers(36);
