@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { canMove, isPlayerTurn, move } from "./MovementLogic";
+import { canMove, isPlayerTurn } from "./MovementLogic";
 import { Cell, emptyCell } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 import { onPlayerMove } from "../api/Server";

@@ -1,5 +1,5 @@
-import { BoardState, BoardStateSnapshot, getOppositePlayer } from "./Board";
-import { Cell, emptyCell, indexToPosition, indexToString, positionToIndex } from "./Cell";
+import { BoardState, getOppositePlayer } from "./Board";
+import { Cell, indexToPosition, indexToString, positionToIndex } from "./Cell";
 import { PieceType, PlayerColors } from "./PieceEnums";
 
 /**
