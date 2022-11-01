@@ -7,9 +7,8 @@ import { PieceType, PlayerColors } from "./PieceEnums";
  * @returns A new Board State
  */
 export const move = (boardState: BoardState, from: number, to: number) => {
-    let fromCell = { ...boardState.cells[from] };
+
     let toCell = { ...boardState.cells[to] }
-    const dx = Math.abs(indexToPosition(from)[0] - indexToPosition(to)[0]);
 
     handleCastle(boardState, from, to);
     handleCapturePiece(boardState, toCell, toCell.pieceColor ? true : false)
@@ -21,33 +20,14 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.cells[from].wasMoved = true;
     boardState.cells[to] = { ...boardState.cells[from] };
     boardState.cells[from] = {};
-    let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
-    let hasLegalMoves = detectHasLegalMoves(boardState, getOppositePlayer(boardState.currentPlayer));
-    let isInStaleMate = detectStalemate(boardState);
-    let isInMate = detectCheckMate(boardState);
-    boardState.isInCheck = isInCheck;
-    boardState.isInMate = isInMate;
-    boardState.isInStaleMate = isInStaleMate;
-
+    boardState.isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+    boardState.isInMate = detectCheckMate(boardState);
+    boardState.isInStaleMate = detectStalemate(boardState);
     let { stateHistory, ...boardSnapshot } = boardState;
     boardState.stateHistory.push({ ...boardSnapshot })
     boardState.currentPlayer = getOppositePlayer(boardState.currentPlayer);
     boardState.timestamp = new Date().getTime();
-
-    //Playing sound depending on case
-    let sound: string = 'Move'
-    if (isInMate)
-        sound = 'CheckMate'
-    else if (isInCheck)
-        sound = 'Check'
-    else if (isInStaleMate)
-        sound = 'StaleMate'
-    else if (fromCell.pieceType === PieceType.KING && dx > 1)
-        sound = 'Castle'
-    else if (toCell?.pieceType)
-        sound = 'Capture'
-
-    boardState.currentSound = sound;
+    boardState.currentSound = chooseSound(boardState);
 
     return { ...boardState }
 }
@@ -316,10 +296,6 @@ export const checkDiagonalObstacles = (cells: Cell[], from: number, to: number) 
     return true
 }
 
-export const handleCheck = () => {
-    //Do something when checks are triggered
-}
-
 /**
  * A method that computes if the current player is in check
  */
@@ -407,10 +383,6 @@ export const handleCastle = (boardState: BoardState, from: number, to: number) =
         boardState.hasCastledOnLastMove = false;
 }
 
-export const checkHasMovedLastTurn = (cell: Cell, boardState: BoardState): boolean => {
-    return boardState.stateHistory[boardState.stateHistory.length - 1].lastMovedPiece.id === cell.id;
-}
-
 export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, hasCaptured: boolean) => {
     if (hasCaptured) {
         boardState.capturedPieces.push({ ...capturedPiece })
@@ -424,6 +396,22 @@ export const playSound = (soundType: string, winningExtension?: string) => {
 
     let sound = new Audio(`./SFX/${soundType}.mp3`)
     sound.play();
+}
+
+export const chooseSound = (boardState: BoardState): string => {
+    let sound: string = 'Move'
+    if (boardState.isInMate)
+        sound = 'CheckMate'
+    else if (boardState.isInCheck)
+        sound = 'Check'
+    else if (boardState.isInStaleMate)
+        sound = 'StaleMate'
+    else if (boardState.hasCastledOnLastMove)
+        sound = 'Castle'
+    else if (boardState.hasCapturedOnLastMove)
+        sound = 'Capture'
+
+    return sound;
 }
 
 export const isPlayerTurn = (playerColor: PlayerColors | undefined, currentPlayerColor: PlayerColors) => {
