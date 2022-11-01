@@ -283,14 +283,14 @@ export const seedStalemateRoom = (n: number) => {
         let bottomPlayer = PlayerColors.LIGHT;
         let topPlayer = PlayerColors.DARK;
         let cells: Cell[] = [
-            emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer, id: 26 }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer, id: 27 }, { pieceType: PieceType.QUEEN, pieceColor: topPlayer, id: 28 }, { pieceType: PieceType.KING, pieceColor: topPlayer, id: 29 }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer, id: 30 }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer, id: 31 }, { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 32 },
+            emptyCell, emptyCell, emptyCell, { pieceType: PieceType.QUEEN, pieceColor: topPlayer, id: 28 }, { pieceType: PieceType.KING, pieceColor: topPlayer, id: 29 }, { pieceType: PieceType.BISHOP, pieceColor: topPlayer, id: 30 }, { pieceType: PieceType.KNIGHT, pieceColor: topPlayer, id: 31 }, { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 32 },
             emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
             emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
             emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
             emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
             emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
-            { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 25 }, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell,
-            emptyCell, emptyCell, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
+            { pieceType: PieceType.ROOK, pieceColor: topPlayer, id: 25 }, emptyCell, emptyCell, emptyCell, { pieceType: PieceType.BISHOP, pieceColor: bottomPlayer, id: 30 }, emptyCell, emptyCell, emptyCell,
+            emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 26 }, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
         ]
         let id = uuid()
         let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [] }

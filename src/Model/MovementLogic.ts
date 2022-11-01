@@ -23,9 +23,8 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.cells[from] = {};
     let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
     let hasLegalMoves = detectHasLegalMoves(boardState, getOppositePlayer(boardState.currentPlayer));
-    let isInMate = isInCheck && hasLegalMoves === false;
-    let isInStaleMate = !isInCheck && hasLegalMoves === false;
-
+    let isInStaleMate = detectStalemate(boardState);
+    let isInMate = detectCheckMate(boardState);
     boardState.isInCheck = isInCheck;
     boardState.isInMate = isInMate;
     boardState.isInStaleMate = isInStaleMate;
@@ -153,9 +152,9 @@ export const computeKingMoves = (boardState: BoardState, from: number, to: numbe
                 break;
             }
         }
-        if (!boardState.cells[from - 4]?.wasMoved && canCastleLeft && to === from - 3)
+        if (boardState.cells[from - 4]?.pieceType && !boardState.cells[from - 4]?.wasMoved && canCastleLeft && to === from - 3)
             return true
-        if (!boardState.cells[from + 3]?.wasMoved && canCastleRight && to === from + 2)
+        if (boardState.cells[from + 3]?.pieceType && !boardState.cells[from + 3]?.wasMoved && canCastleRight && to === from + 2)
             return true
     }
 
@@ -339,6 +338,33 @@ export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColor
             result = computePieceMoves(boardState, piece as any, king);
     })
     return result;
+}
+
+export const detectStalemate = (boardState: BoardState): boolean => {
+    let hasLegalMoves = detectHasLegalMoves(boardState, getOppositePlayer(boardState.currentPlayer));
+    let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+    if (!hasLegalMoves && !isInCheck) {
+        return true
+    }
+    let remainingPieces = boardState.cells.filter(cell => cell.pieceType);
+    if (remainingPieces.length === 2 && remainingPieces.every(cell => cell.pieceType === PieceType.KING)) {
+        return true
+    }
+    if (remainingPieces.length === 3 && remainingPieces.some(cell => cell.pieceType === PieceType.BISHOP || cell.pieceType === PieceType.KNIGHT)) {
+        return true
+    }
+
+    return false
+}
+
+export const detectCheckMate = (boardState: BoardState): boolean => {
+    let hasLegalMoves = detectHasLegalMoves(boardState, getOppositePlayer(boardState.currentPlayer));
+    let isInCheck = isPlayerInCheck(boardState, getOppositePlayer(boardState.currentPlayer));
+
+    if (isInCheck && !hasLegalMoves) {
+        return true
+    }
+    return false
 }
 
 export const detectHasLegalMoves = (boardState: BoardState, playerColor: PlayerColors) => {
