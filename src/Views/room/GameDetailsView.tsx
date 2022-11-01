@@ -31,11 +31,15 @@ export interface MoveItemProps {
 export const MoveItem = (props: MoveItemProps) => {
     let { id, hasCaptured, target, imgSrc, isInCheck, hasCastled, isInMate, isInStaleMate } = props;
     let actionSrc = '../../move-arrow.svg';
-    if (isInStaleMate)
-        //TODO: Add stale-mate sound and img
+    let styleClass = 'action-icon-filter';
+    if (isInStaleMate) {
         actionSrc = '../../move-stalemate.svg'
-    else if (isInCheck)
+        styleClass += ' check-icon'
+    }
+    else if (isInCheck) {
         actionSrc = '../../move-check.svg';
+        styleClass += isInMate ? ' checkmate-icon-filter' : ' check-icon-filter';
+    }
     else if (hasCaptured)
         actionSrc = '../../move-attack.svg';
     else if (hasCastled)
@@ -46,7 +50,7 @@ export const MoveItem = (props: MoveItemProps) => {
             <h3 className="move-id">{id}</h3>
             <div className="move-details">
                 <img className="move-piece-icon" src={imgSrc} alt='' />
-                <img className={isInMate ? "checkmate-icon action-icon" : isInCheck ? "check-icon action-icon" : "action-icon"}
+                <img className={styleClass}
                     src={actionSrc} alt='' />
             </div>
             <p className="move-target">{hasCaptured ? 'x' + target : target}</p>

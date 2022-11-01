@@ -29,7 +29,7 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.isInCheck = isInCheck;
     boardState.isInMate = isInMate;
     boardState.isInStaleMate = isInStaleMate;
-    
+
     let { stateHistory, ...boardSnapshot } = boardState;
     boardState.stateHistory.push({ ...boardSnapshot })
     boardState.currentPlayer = getOppositePlayer(boardState.currentPlayer);
@@ -41,13 +41,15 @@ export const move = (boardState: BoardState, from: number, to: number) => {
         sound = 'CheckMate'
     else if (isInCheck)
         sound = 'Check'
+    else if (isInStaleMate)
+        sound = 'StaleMate'
     else if (fromCell.pieceType === PieceType.KING && dx > 1)
         sound = 'Castle'
     else if (toCell?.pieceType)
         sound = 'Capture'
 
     boardState.currentSound = sound;
-    
+
     return { ...boardState }
 }
 
@@ -387,11 +389,13 @@ export const handleCapturePiece = (boardState: BoardState, capturedPiece: Cell, 
     if (hasCaptured) {
         boardState.capturedPieces.push({ ...capturedPiece })
     }
-
     boardState.hasCapturedOnLastMove = hasCaptured;
 }
 
-export const playSound = (soundType: string) => {
+export const playSound = (soundType: string, winningExtension?: string) => {
+    if (winningExtension)
+        soundType += winningExtension
+
     let sound = new Audio(`./SFX/${soundType}.mp3`)
     sound.play();
 }

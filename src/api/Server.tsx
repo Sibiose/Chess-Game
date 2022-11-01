@@ -95,15 +95,19 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
         });
 
         globalSocket.on('updatedGameState', (newGameState: BoardState) => {
+            let soundExtension: string | undefined;
             setState((prevState: Server) => {
+
+                if (newGameState.isInMate) {
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
+                }
                 let playerRoom = prevState.currentPlayer?.room;
                 if (playerRoom) {
                     playerRoom.gameState = { ...newGameState }
                 }
                 return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
             });
-            console.log(newGameState.currentSound)
-            playSound(newGameState.currentSound ?? "Move");
+            playSound(newGameState.currentSound ?? "Move", soundExtension);
         });
 
     }

@@ -45,7 +45,7 @@ export const GameResultModal = (props: { game: ChessGame, currentPlayer: PlayerD
         message = myTurn ? "Too bad! You Lost!" : "Congratulations, You Won!";
     }
     if (game.isInStaleMate) {
-        message = "Game ended in a draw!"
+        message = "Game ended in a stalemate!"
     }
     return (
         <div className="game-result-modal">{message} </div>
