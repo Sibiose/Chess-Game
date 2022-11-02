@@ -32,7 +32,8 @@ export interface RoomDto {
     gameState: any,
     isFull: boolean,
     joinedPlayers: string[],
-    difficulty: number
+    difficulty: number,
+    gameHasStarted:boolean,
 }
 
 export interface UpdateRoomDto {
@@ -43,6 +44,7 @@ export interface UpdateRoomDto {
     messages?: MessagesDto;
     bottomPlayer?: PlayerDto;
     topPlayer?: PlayerDto;
+    gameHasStarted?:boolean;
 }
 
 export interface PlayersDto {

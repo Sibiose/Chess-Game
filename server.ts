@@ -208,7 +208,7 @@ export const getRoomById = (roomId: string) => {
 export const addRoom = (room: RoomRequest) => {
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
-    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [] }
+    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [], gameHasStarted: false }
     setRooms(id, newRoom);
 
     return newRoom
@@ -280,7 +280,7 @@ export const movePiece = (roomId: string, from: number, to: number) => {
 
         if (canMove(room.gameState, from, to)) {
             let gameState = move(room.gameState, from, to);
-            setRooms(roomId, { ...room, gameState });
+            setRooms(roomId, { ...room, gameState, gameHasStarted: true });
             room.joinedPlayers.forEach(playerId => {
                 updatePlayer(playerId, { room: getRoomById(roomId) });
             });
@@ -300,7 +300,7 @@ export const computeAIMove = (boardState: BoardState, difficulty: number): [numb
 export const seedRooms = (n: number) => {
     for (let i = 0; i < n; i++) {
         let id = uuid();
-        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1 }
+        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1, gameHasStarted: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -319,7 +319,7 @@ export const seedStalemateRoom = (n: number) => {
             emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 26 }, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
         ]
         let id = uuid()
-        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1 }
+        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1, gameHasStarted: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
