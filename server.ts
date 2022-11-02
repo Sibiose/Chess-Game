@@ -2,12 +2,14 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors'
 import { Server } from 'socket.io';
-import { createDefaultBoard, getOppositePlayer } from './src/Model/Board';
+import { BoardState, createDefaultBoard, getBoardFEN, getOppositePlayer } from './src/Model/Board';
 import { PieceType, PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
 import { v4 as uuid } from 'uuid';
-import { Cell, emptyCell } from './src/Model/Cell';
+import { AIstringToIndex, Cell, emptyCell } from './src/Model/Cell';
+const jsChessEngine: any = require('js-chess-engine');
+const { aiMove } = jsChessEngine;
 
 const app = express();
 app.use(cors());
@@ -144,6 +146,21 @@ io.on('connection', socket => {
         }
     });
 
+    socket.on('aiMoveRequest', (roomId: string) => {
+        let room = getRoomById(roomId);
+        if (room && room.gameState && !room.isMultiplayer) {
+            let difficulty: number = room.difficulty ?? 1
+            setTimeout(() => {
+                let [from, to] = computeAIMove(room?.gameState, difficulty);
+                let aiMoveState = movePiece(roomId, from, to);
+                if (aiMoveState) {
+                    io.to(roomId).emit('aiUpdatedGameState', aiMoveState);
+                }
+            }, 0);
+
+        }
+    })
+
     socket.on('sendMessage', (roomId: string, message: MessageDto) => {
         let messages = updateRoomMessages(roomId, message);
         if (messages) {
@@ -271,10 +288,18 @@ export const movePiece = (roomId: string, from: number, to: number) => {
     }
 }
 
+export const computeAIMove = (boardState: BoardState, difficulty: number): [number, number] => {
+    let aiMoveObject = aiMove(getBoardFEN(boardState), difficulty);
+    let aiFrom = AIstringToIndex(Object.keys(aiMoveObject)[0]);
+    let aiTo = AIstringToIndex(String((Object.values(aiMoveObject)[0])));
+
+    return [aiFrom, aiTo];
+}
+
 export const seedRooms = (n: number) => {
     for (let i = 0; i < n; i++) {
         let id = uuid();
-        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [] }
+        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1 }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -293,7 +318,7 @@ export const seedStalemateRoom = (n: number) => {
             emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 26 }, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
         ]
         let id = uuid()
-        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [] }
+        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1 }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -305,6 +330,8 @@ export const seedPlayers = (n: number) => {
         getServerState().players.playersMap.set(id, player);
     }
 }
+
+
 
 seedRooms(100);
 seedStalemateRoom(5);

@@ -28,7 +28,6 @@ export const move = (boardState: BoardState, from: number, to: number) => {
     boardState.currentPlayer = getOppositePlayer(boardState.currentPlayer);
     boardState.timestamp = new Date().getTime();
     boardState.currentSound = chooseSound(boardState);
-
     return { ...boardState }
 }
 

@@ -97,7 +97,23 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
         globalSocket.on('updatedGameState', (newGameState: BoardState) => {
             let soundExtension: string | undefined;
             setState((prevState: Server) => {
+                if (newGameState.isInMate) {
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
+                }
+                let playerRoom = prevState.currentPlayer?.room;
+                if (playerRoom) {
+                    playerRoom.gameState = { ...newGameState }
+                }
+                onAiMoveRequest(prevState.currentPlayer?.room?.id ?? "");
+                return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
+            });
+            playSound(newGameState.currentSound ?? "Move", soundExtension);
 
+        });
+
+        globalSocket.on('aiUpdatedGameState', (newGameState: BoardState) => {
+            let soundExtension: string | undefined;
+            setState((prevState: Server) => {
                 if (newGameState.isInMate) {
                     soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
                 }
@@ -108,6 +124,7 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
                 return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
             });
             playSound(newGameState.currentSound ?? "Move", soundExtension);
+
         });
 
     }
@@ -152,6 +169,11 @@ export const onUpdatePlayer = async (playerId: string, updatedPlayer: UpdatePlay
 export const onPlayerMove = async (roomId: string, from: number, to: number) => {
     checkGlobalSocketExists();
     globalSocket.emit('playerMove', roomId, from, to);
+}
+
+export const onAiMoveRequest = async (roomId: string) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('aiMoveRequest', roomId);
 }
 
 

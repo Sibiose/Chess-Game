@@ -31,7 +31,8 @@ export interface RoomDto {
     messages: MessagesDto,
     gameState: any,
     isFull: boolean,
-    joinedPlayers:string[]
+    joinedPlayers: string[],
+    difficulty: number
 }
 
 export interface UpdateRoomDto {
@@ -84,4 +85,5 @@ export interface RoomRequest {
     isMultiplayer: boolean,
     password?: string,
     bottomPlayerColor: PlayerColors,
+    difficulty: number
 }
