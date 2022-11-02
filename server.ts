@@ -150,13 +150,14 @@ io.on('connection', socket => {
         let room = getRoomById(roomId);
         if (room && room.gameState && !room.isMultiplayer) {
             let difficulty: number = room.difficulty ?? 1
+            let timeout: number = room.difficulty > 2 ? 0 : 1500;
             setTimeout(() => {
                 let [from, to] = computeAIMove(room?.gameState, difficulty);
                 let aiMoveState = movePiece(roomId, from, to);
                 if (aiMoveState) {
                     io.to(roomId).emit('aiUpdatedGameState', aiMoveState);
                 }
-            }, 0);
+            }, timeout);
 
         }
     })

@@ -30,7 +30,7 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
                 <p style={error ? {} : displayNone} className="input-error">Please check that all fields are corect!</p>
             </div>
             <button className="create-room-btn" onClick={async () => {
-                let isError = createRoom(isLocked, isMultiplayer, roomName, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT, isLocked ? password : undefined, currentPlayer?.id);
+                let isError = createRoom(isLocked, isMultiplayer, roomName, isBottomPlayerDark ? PlayerColors.DARK : PlayerColors.LIGHT, difficulty, isLocked ? password : undefined, currentPlayer?.id);
                 setError(isError);
                 if (!isError)
                     setopenEditor(false);
@@ -39,13 +39,13 @@ export const RoomEditorView = (props: { setopenEditor: (openEditor: boolean) => 
     )
 }
 
-export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, bottomPlayerColor: PlayerColors, password?: string, playerId?: string,) => {
+export const createRoom = (isLocked: boolean, isMultiplayer: boolean, roomName: string, bottomPlayerColor: PlayerColors, difficulty: number, password?: string, playerId?: string,) => {
     if (roomName === "")
         return true
     if (isLocked && password === "")
         return true
     if (playerId) {
-        onCreateNewRoom(playerId, { name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor, difficulty: 1 });
+        onCreateNewRoom(playerId, { name: roomName, isLocked, isMultiplayer, password, bottomPlayerColor, difficulty });
     }
     return false
 
@@ -62,25 +62,25 @@ export const DifficultyInputView = (props: { inputState: number, setInputState: 
                 <div className="difficulty-input-subcontainer">
                     <div>
                         <label className="difficulty-input-label">{DifficultyDTO.Noob}</label>
-                        <input checked={inputState === 1 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(1) }} />
+                        <input checked={inputState === 0 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(0) }} />
                     </div>
                     <div>
                         <label className="difficulty-input-label">{DifficultyDTO.Beginner}</label>
-                        <input checked={inputState === 2 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(2) }} />
+                        <input checked={inputState === 1 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(1) }} />
                     </div>
                     <div>
                         <label className="difficulty-input-label">{DifficultyDTO.Intermediate}</label>
-                        <input checked={inputState === 3 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(3) }} />
+                        <input checked={inputState === 2 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(2) }} />
                     </div>
                 </div>
                 <div className="difficulty-input-subcontainer">
                     <div>
                         <label className="difficulty-input-label">{DifficultyDTO.Advanced}</label>
-                        <input checked={inputState === 4 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(4) }} />
+                        <input checked={inputState === 3 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(3) }} />
                     </div>
                     <div>
                         <label className="difficulty-input-label">{DifficultyDTO.Expert}</label>
-                        <input checked={inputState === 5 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(5) }} />
+                        <input checked={inputState === 4 ? true : false} className="difficulty-radio-input" type="radio" onChange={() => { setInputState(4) }} />
                     </div>
                 </div>
             </div>
