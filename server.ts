@@ -249,7 +249,7 @@ export const leaveRoom = (roomId: string, playerId: string) => {
         let leavingPlayer = room?.bottomPlayer?.id === playerId ? { bottomPlayer: undefined } : { topPlayer: undefined };
         let remainingPlayers = room?.joinedPlayers.filter(id => id !== playerId);
         if (remainingPlayers.length) {
-            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer, gameHasEnded: true });
+            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer, gameHasEnded: room.gameHasStarted ? true : false, isFull: room.gameHasStarted ? true : false });
         } else {
             deleteRoom(roomId);
         }
