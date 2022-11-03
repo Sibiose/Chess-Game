@@ -14,11 +14,11 @@ export const RoomView = () => {
     let currentPlayer = useServer().currentPlayer;
     let currentRoom = currentPlayer?.room;
     const [openModal, setOpenModal] = useState<boolean>(false);
-//TODO: Add leave room if click on yes,
-    const handleLeaveRoom = (gameHasStarted: boolean, roomId?: string, playerId?: string) => {
+    //TODO: Add leave room if click on yes,
+    const handleLeaveRoom = (gameHasStarted: boolean, gameHasEnded: boolean, roomId?: string, playerId?: string) => {
         if (roomId && playerId) {
             console.log(gameHasStarted);
-            if (!gameHasStarted) {
+            if (!gameHasStarted || gameHasEnded) {
                 onLeaveRoom(roomId, playerId)
             }
             else {
@@ -32,11 +32,11 @@ export const RoomView = () => {
     let usernamePlaceholder: string = !currentRoom?.isMultiplayer ? "Computer" : currentRoom.gameHasStarted ? "Player left the game" : "Waiting for player";
     return (
         <section className="room-section">
-            {openModal ? <RoomOverlay /> : null}
+            {openModal ? <RoomOverlay setOpenModal={setOpenModal} /> : null}
             <main className="room-main">
-                {game.isInMate || game.isInStaleMate ? <GameResultModal game={game} currentPlayer={currentPlayer} /> : null}
-                {game.isInMate || game.isInStaleMate ? <BoardOverlay /> : null}
-                {openModal ? <LeaveRoomModal /> : null}
+                {game.isInMate || game.isInStaleMate || currentRoom?.gameHasEnded ? <GameResultModal game={game} currentPlayer={currentPlayer} /> : null}
+                {game.isInMate || game.isInStaleMate || currentRoom?.gameHasEnded ? < BoardOverlay /> : null}
+                {openModal ? <LeaveRoomModal setOpenModal={setOpenModal} /> : null}
                 <PlayerDetailsView game={game} isBottom={false} username={currentRoom?.topPlayer?.username ? currentRoom.topPlayer.username : usernamePlaceholder} />
                 <DndProvider backend={HTML5Backend}>
                     <BoardView game={game} />
@@ -48,7 +48,7 @@ export const RoomView = () => {
                 <div className="my-turn">
                     <h3>{`${myTurn ? 'Your' : 'Opponent'} turn`}</h3>
                 </div>
-                <button className="leave-room-btn" onClick={() => { handleLeaveRoom(currentRoom?.gameHasStarted ? true : false, currentRoom?.id, currentPlayer?.id) }}>Leave Room</button>
+                <button className="leave-room-btn" onClick={() => { handleLeaveRoom(currentRoom?.gameHasStarted ? true : false, currentRoom?.gameHasEnded ? true : false, currentRoom?.id, currentPlayer?.id) }}>Leave Room</button>
             </aside>
         </section>
     )
@@ -64,18 +64,28 @@ export const GameResultModal = (props: { game: ChessGame, currentPlayer: PlayerD
     if (game.isInStaleMate) {
         message = "Game ended in a stalemate!"
     }
+    if (currentPlayer?.room?.gameHasEnded && !game.isInStaleMate && !game.isInMate) {
+        message = 'You win. Opponent abandoned the game!'
+    }
     return (
         <div className="game-result-modal">{message} </div>
     )
 }
 
-export const LeaveRoomModal = () => {
+export const LeaveRoomModal = (props: { setOpenModal: (openModal: boolean) => void }) => {
+    const { setOpenModal } = props;
+    let currentPlayer = useServer().currentPlayer;
+    let currentRoom = useServer().currentPlayer?.room;
     return (
         <div className="leave-room-modal">
             <h3>Are you sure you want to leave the room and abandon the game?</h3>
             <div className="leave-room-button-container">
-                <button>Yes</button>
-                <button>No</button>
+                <button onClick={() => {
+                    onLeaveRoom(currentRoom?.id ?? "", currentPlayer?.id)
+                }}>Yes</button>
+                <button onClick={() => {
+                    setOpenModal(false);
+                }}>No</button>
             </div>
         </div>
     )
@@ -87,8 +97,10 @@ export const BoardOverlay = () => {
     )
 }
 
-export const RoomOverlay = () => {
+export const RoomOverlay = (props: { setOpenModal: (openModal: boolean) => void }) => {
     return (
-        <div className="room-overlay"></div>
+        <div onClick={() => {
+            props.setOpenModal(false);
+        }} className="room-overlay"></div>
     )
 }

@@ -137,12 +137,16 @@ io.on('connection', socket => {
             io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
             io.emit('updatedServerState', parseStateObject());
         }
-    })
+    });
 
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
+        let gameHasStartedYet: boolean = getRoomById(roomId)?.gameHasStarted ?? false;
         let newState = movePiece(roomId, from, to);
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
+        }
+        if (!gameHasStartedYet) {
+            io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
         }
     });
 
@@ -208,7 +212,7 @@ export const getRoomById = (roomId: string) => {
 export const addRoom = (room: RoomRequest) => {
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
-    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [], gameHasStarted: false }
+    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [], gameHasStarted: false, gameHasEnded: false }
     setRooms(id, newRoom);
 
     return newRoom
@@ -245,7 +249,7 @@ export const leaveRoom = (roomId: string, playerId: string) => {
         let leavingPlayer = room?.bottomPlayer?.id === playerId ? { bottomPlayer: undefined } : { topPlayer: undefined };
         let remainingPlayers = room?.joinedPlayers.filter(id => id !== playerId);
         if (remainingPlayers.length) {
-            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer });
+            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer, gameHasEnded: true });
         } else {
             deleteRoom(roomId);
         }
@@ -280,7 +284,7 @@ export const movePiece = (roomId: string, from: number, to: number) => {
 
         if (canMove(room.gameState, from, to)) {
             let gameState = move(room.gameState, from, to);
-            setRooms(roomId, { ...room, gameState, gameHasStarted: true });
+            setRooms(roomId, { ...room, gameState, gameHasStarted: true, gameHasEnded: gameState.isInMate || gameState.isInStaleMate ? true : false });
             room.joinedPlayers.forEach(playerId => {
                 updatePlayer(playerId, { room: getRoomById(roomId) });
             });
@@ -300,7 +304,7 @@ export const computeAIMove = (boardState: BoardState, difficulty: number): [numb
 export const seedRooms = (n: number) => {
     for (let i = 0; i < n; i++) {
         let id = uuid();
-        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1, gameHasStarted: false }
+        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1, gameHasStarted: false, gameHasEnded: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -319,7 +323,7 @@ export const seedStalemateRoom = (n: number) => {
             emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 26 }, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
         ]
         let id = uuid()
-        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1, gameHasStarted: false }
+        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1, gameHasStarted: false, gameHasEnded: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }

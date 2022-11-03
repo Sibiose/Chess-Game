@@ -151,7 +151,7 @@ export const onJoinRoom = async (roomId: string, playerId: string | undefined) =
     globalSocket.emit('joinRoom', roomId, playerId)
 }
 
-export const onLeaveRoom = async (roomId: String, playerId: string | undefined) => {
+export const onLeaveRoom = async (roomId: string, playerId: string | undefined) => {
     checkGlobalSocketExists();
     globalSocket.emit('leaveRoom', roomId, playerId);
 }
