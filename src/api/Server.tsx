@@ -5,7 +5,7 @@ import { BoardState } from "../Model/Board";
 import { playSound } from "../Model/MovementLogic";
 import { useCookies } from "react-cookie";
 
-const PORT: string = "http://localhost:7000"
+const PORT: string = "http://192.168.182.157:7000";
 let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
@@ -115,7 +115,7 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
             let soundExtension: string | undefined;
             setState((prevState: Server) => {
                 if (newGameState.isInMate) {
-                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-win' : '-lose';
                 }
                 let playerRoom = prevState.currentPlayer?.room;
                 if (playerRoom) {
