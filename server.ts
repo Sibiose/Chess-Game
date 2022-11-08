@@ -140,12 +140,13 @@ io.on('connection', socket => {
     });
 
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
-        let gameHasStartedYet: boolean = getRoomById(roomId)?.gameHasStarted ?? false;
         let newState = movePiece(roomId, from, to);
+        let gameHasEnded = getRoomById(roomId)?.gameHasEnded ?? false;
+        let gameHasStartedYet: boolean = getRoomById(roomId)?.gameHasStarted ?? false;
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
-        if (!gameHasStartedYet) {
+        if (!gameHasStartedYet || gameHasEnded ) {
             io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
         }
     });

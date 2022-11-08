@@ -14,14 +14,12 @@ export const RoomView = () => {
     let currentPlayer = useServer().currentPlayer;
     let currentRoom = currentPlayer?.room;
     const [openModal, setOpenModal] = useState<boolean>(false);
-    //TODO: Add leave room if click on yes,
+
     const handleLeaveRoom = (gameHasStarted: boolean, gameHasEnded: boolean, roomId?: string, playerId?: string) => {
         if (roomId && playerId) {
-            console.log(gameHasStarted);
             if (!gameHasStarted || gameHasEnded) {
                 onLeaveRoom(roomId, playerId)
-            }
-            else {
+            } else {
                 setOpenModal(true);
             }
         }
