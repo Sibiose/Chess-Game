@@ -10,6 +10,13 @@ import { v4 as uuid } from 'uuid';
 import { AIstringToIndex, Cell, emptyCell } from './src/Model/Cell';
 const jsChessEngine: any = require('js-chess-engine');
 const { aiMove } = jsChessEngine;
+import CronJob from "node-cron";
+
+//Clearing players from database every 10 minutes if disconnected
+CronJob.schedule('0 */10 * * * *', () => {
+    clearDisconnectedPlayers();
+});
+
 
 const app = express();
 app.use(cors());
@@ -84,14 +91,24 @@ io.on('connection', socket => {
     io.emit('updatedServerState', parseStateObject());
     socket.on('checkPlayerCookies', (playerId: string) => {
         if (getServerState().players.playersMap.has(playerId)) {
-            updatePlayer(playerId, { socketId: socket.id });
+            updatePlayer(playerId, { socketId: socket.id, isConnected: true });
             socket.join(playerId);
             let roomId = getPlayerById(playerId)?.room?.id;
             if (roomId && !socket.rooms.has(roomId)) {
                 socket.join(roomId);
             }
             io.to(playerId).emit('updatedCurrentPlayer', getPlayerById(playerId));
+            io.emit('updatedPlayers', parsePlayersObject(serverState.players));
         }
+    })
+
+    socket.on('disconnect', (reason: string) => {
+        let playerId = getPlayerIdBySocketId(socket.id);
+        if (getPlayerById(playerId)) {
+            updatePlayer(playerId, { isConnected: false });
+            io.emit('updatedPlayers', parsePlayersObject(serverState.players));
+        }
+
     })
 
     //Creating the current session for a new socket
@@ -146,7 +163,7 @@ io.on('connection', socket => {
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
-        if (!gameHasStartedYet || gameHasEnded ) {
+        if (!gameHasStartedYet || gameHasEnded) {
             io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
         }
     });
@@ -182,10 +199,13 @@ io.on('connection', socket => {
 export const getPlayerById = (playerId: string) => {
     return getServerState().players.playersMap.get(playerId);
 }
+export const getPlayerIdBySocketId = (socketId: string) => {
+    return Array.from(getServerState().players.playersMap.values()).filter(player => player.socketId === socketId).map(player => player.id)[0];
+}
 
 export const addPlayer = (socketId: string, username: string) => {
     let id = uuid();
-    let newPlayer: PlayerDto = { id, socketId, username, createdAt: getCurrentDateNumber() };
+    let newPlayer: PlayerDto = { id, socketId, username, createdAt: getCurrentDateNumber(), isConnected: true };
     setPlayers(id, newPlayer);
     return newPlayer;
 }
@@ -202,6 +222,15 @@ export const deletePlayer = (playerId: string) => {
     if (player) {
         getServerState().players.playersMap.delete(playerId);
     }
+}
+
+export const clearDisconnectedPlayers = () => {
+    let players = Array.from(getServerState().players.playersMap.values());
+    players.forEach(player => {
+        if (!player.isConnected && (player?.timestamp ?? 0 + 600000 > Date.now())) {
+            deletePlayer(player.id);
+        }
+    })
 }
 
 //ROOM METHODS

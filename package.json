@@ -13,6 +13,7 @@
     "cors": "^2.8.5",
     "express": "4.18.1",
     "js-chess-engine": "^1.0.2",
+    "node-cron": "^3.0.2",
     "nodemon": "^2.0.20",
     "react": "^18.1.0",
     "react-cookie": "^4.1.1",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.5",
     "@types/uuid": "^8.3.4",
     "ts-node": "^10.9.1"
   }

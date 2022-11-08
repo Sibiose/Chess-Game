@@ -62,6 +62,7 @@ export interface PlayerDto {
     socketId: string,
     room?: RoomDto,
     pieceColor?: PlayerColors,
+    isConnected? :boolean
 }
 
 export interface UpdatePlayerDto {
@@ -70,6 +71,7 @@ export interface UpdatePlayerDto {
     socketId?: string,
     room?: RoomDto
     pieceColor?: PlayerColors,
+    isConnected? :boolean
 }
 
 export interface MessagesDto {
