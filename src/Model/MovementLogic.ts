@@ -306,7 +306,7 @@ export const isPlayerInCheck = (boardState: BoardState, playerColor: PlayerColor
 
     let oppositePieces = cells.map((cell, i) => {
         return cell.pieceType !== undefined && cell.pieceColor === oppositeColor ? i : null;
-    }).filter(i => i);
+    }).filter(i => i!== null);
 
     oppositePieces.forEach(piece => {
         if (!result)
