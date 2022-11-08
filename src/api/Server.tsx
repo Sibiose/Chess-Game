@@ -98,13 +98,16 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
             let soundExtension: string | undefined;
             setState((prevState: Server) => {
                 if (newGameState.isInMate) {
-                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-win' : '-lose';
                 }
                 let playerRoom = prevState.currentPlayer?.room;
                 if (playerRoom) {
                     playerRoom.gameState = { ...newGameState }
                 }
-                onAiMoveRequest(prevState.currentPlayer?.room?.id ?? "");
+                if (!newGameState.isInMate && !newGameState.isInStaleMate) {
+                    onAiMoveRequest(prevState.currentPlayer?.room?.id ?? "")
+                }
+                ;
                 return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
             });
             playSound(newGameState.currentSound ?? "Move", soundExtension);

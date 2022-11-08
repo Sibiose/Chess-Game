@@ -229,11 +229,13 @@ export const updateRoom = (roomId: string, updatedRoom: UpdateRoomDto) => {
 export const joinRoom = (roomId: string, playerId: string) => {
     let player = getPlayerById(playerId);
     let room = getRoomById(roomId)
-    if (player && room) {
-        let roomLoad: UpdateRoomDto = { bottomPlayer: player, isFull: !room.isMultiplayer, joinedPlayers: room.joinedPlayers.concat(playerId) }
+    if (player && room && room.isFull === false) {
+        let isFull = room.isMultiplayer ? room.joinedPlayers.length >= 1 : true;
+        let roomLoad: UpdateRoomDto = { bottomPlayer: player, joinedPlayers: room.joinedPlayers.concat(playerId), isFull };
         let playerLoad: UpdatePlayerDto = { pieceColor: room.bottomPlayerColor };
         if (room.bottomPlayer) {
-            roomLoad = { topPlayer: player, isFull: true, joinedPlayers: room.joinedPlayers.concat(playerId) }
+            delete roomLoad.bottomPlayer;
+            roomLoad = { ...roomLoad, topPlayer: player }
             playerLoad = { pieceColor: getOppositePlayer(room.bottomPlayerColor) };
         }
         updateRoom(roomId, roomLoad);
@@ -338,6 +340,6 @@ export const seedPlayers = (n: number) => {
 
 
 
-seedRooms(100);
-seedStalemateRoom(5);
-seedPlayers(36);
+// seedRooms(100);
+// seedStalemateRoom(5);
+// seedPlayers(36);
