@@ -44,7 +44,7 @@ export const RoomView = () => {
             <aside className="room-aside">
                 <BoardSideView game={game} />
                 <div className="my-turn">
-                    <h3>{`${myTurn ? 'Your' : 'Opponent'} turn`}</h3>
+                    <h3>{`${currentRoom?.gameHasEnded ? 'Game ended' : myTurn ? 'Your turn' : 'Opponent turn'}`}</h3>
                 </div>
                 <button className="leave-room-btn" onClick={() => { handleLeaveRoom(currentRoom?.gameHasStarted ? true : false, currentRoom?.gameHasEnded ? true : false, currentRoom?.id, currentPlayer?.id) }}>Leave Room</button>
             </aside>
