@@ -5,7 +5,7 @@ import { BoardState } from "../Model/Board";
 import { playSound } from "../Model/MovementLogic";
 import { useCookies } from "react-cookie";
 
-const PORT: string = "http://localhost:7000"
+const PORT: string = "http://192.168.182.157:7000";
 let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });
@@ -97,9 +97,28 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
         globalSocket.on('updatedGameState', (newGameState: BoardState) => {
             let soundExtension: string | undefined;
             setState((prevState: Server) => {
-
                 if (newGameState.isInMate) {
-                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-lose' : '-win';
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-win' : '-lose';
+                }
+                let playerRoom = prevState.currentPlayer?.room;
+                if (playerRoom) {
+                    playerRoom.gameState = { ...newGameState }
+                }
+                if (!newGameState.isInMate && !newGameState.isInStaleMate) {
+                    onAiMoveRequest(prevState.currentPlayer?.room?.id ?? "")
+                }
+                ;
+                return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
+            });
+            playSound(newGameState.currentSound ?? "Move", soundExtension);
+
+        });
+
+        globalSocket.on('aiUpdatedGameState', (newGameState: BoardState) => {
+            let soundExtension: string | undefined;
+            setState((prevState: Server) => {
+                if (newGameState.isInMate) {
+                    soundExtension = newGameState.currentPlayer === prevState.currentPlayer?.pieceColor ? '-win' : '-lose';
                 }
                 let playerRoom = prevState.currentPlayer?.room;
                 if (playerRoom) {
@@ -108,6 +127,7 @@ export const getSocket = (setState: any, cookies: any, setCookie: any) => {
                 return { ...prevState, currentPlayer: { ...prevState.currentPlayer, room: playerRoom } }
             });
             playSound(newGameState.currentSound ?? "Move", soundExtension);
+
         });
 
     }
@@ -134,7 +154,7 @@ export const onJoinRoom = async (roomId: string, playerId: string | undefined) =
     globalSocket.emit('joinRoom', roomId, playerId)
 }
 
-export const onLeaveRoom = async (roomId: String, playerId: string | undefined) => {
+export const onLeaveRoom = async (roomId: string, playerId: string | undefined) => {
     checkGlobalSocketExists();
     globalSocket.emit('leaveRoom', roomId, playerId);
 }
@@ -152,6 +172,11 @@ export const onUpdatePlayer = async (playerId: string, updatedPlayer: UpdatePlay
 export const onPlayerMove = async (roomId: string, from: number, to: number) => {
     checkGlobalSocketExists();
     globalSocket.emit('playerMove', roomId, from, to);
+}
+
+export const onAiMoveRequest = async (roomId: string) => {
+    checkGlobalSocketExists();
+    globalSocket.emit('aiMoveRequest', roomId);
 }
 
 

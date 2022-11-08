@@ -36,7 +36,7 @@ export const LobbyView = (props: { rooms: RoomDto[], players: PlayerDto[], curre
                         {players.map((player, i) => {
                             if (player.username) {
                                 return <li title={player.username} key={i} className="player-list-item">
-                                    <StatusBubble status={player.room ? true : false} />
+                                    <StatusBubble hasRoom = {player.room ? true: false} isConnected={player.isConnected ? true:false} />
                                     <span className="text-overflow-ellipsis">{player.username}</span></li>
                             }
                             return null

@@ -21,7 +21,7 @@ export interface BoardStateSnapshot {
     isInStaleMate: boolean;
     hasCastledOnLastMove: boolean;
     timestamp?: number;
-    currentSound?:string;
+    currentSound?: string;
 }
 
 export interface BoardState extends BoardStateSnapshot {
@@ -91,4 +91,64 @@ export const createDefaultBoard = (bottomPlayer: PlayerColors): BoardState => {
 
 export const getOppositePlayer = (playerColor: PlayerColors) => {
     return playerColor === PlayerColors.DARK ? PlayerColors.LIGHT : PlayerColors.DARK;
+}
+
+export const getBoardFEN = (boardstate: BoardState): string => {
+    let FENstring: string = '';
+    let pieceAnnotationMap: Map<PieceType, string> = new Map<PieceType, string>([[PieceType.KING, 'k'], [PieceType.PAWN, 'p'], [PieceType.QUEEN, 'q'], [PieceType.BISHOP, 'b'], [PieceType.KNIGHT, 'n'], [PieceType.ROOK, 'r']]);
+    let stringCells = boardstate.cells.map(cell => {
+        if (!cell.pieceType) {
+            return 'e'
+        }
+        else {
+            let pieceCode = pieceAnnotationMap.get(cell.pieceType) ?? ""
+            return cell.pieceColor === PlayerColors.LIGHT ? pieceCode?.toUpperCase() : pieceCode;
+        }
+    }).filter(c => c);
+    let emptyCellsCounter: number = 0;
+    stringCells.forEach((str, i) => {
+        if (i !== 0 && i % 8 === 0) {
+            if (emptyCellsCounter !== 0) {
+                FENstring += emptyCellsCounter.toString();
+                emptyCellsCounter = 0;
+            }
+            FENstring += '/';
+        }
+        if (str === 'e') {
+            emptyCellsCounter++
+        }
+        else {
+            if (emptyCellsCounter !== 0) {
+                FENstring += emptyCellsCounter.toString();
+                emptyCellsCounter = 0;
+            }
+            FENstring += str;
+        }
+
+    });
+
+    FENstring += boardstate.currentPlayer === PlayerColors.DARK ? ' b ' : ' w ';
+
+    let lightKingIndex: number = boardstate.bottomPlayer === PlayerColors.LIGHT ? 60 : 4;
+    let darkKingIndex: number = boardstate.bottomPlayer === PlayerColors.LIGHT ? 4 : 60;
+
+    let lightCastleKing: boolean = boardstate.cells[lightKingIndex].pieceType !== PieceType.KING ? false : canMove({ ...boardstate, currentPlayer: PlayerColors.LIGHT }, lightKingIndex, lightKingIndex + 2);
+    let lightCastleQueen: boolean = boardstate.cells[lightKingIndex].pieceType !== PieceType.KING ? false : canMove({ ...boardstate, currentPlayer: PlayerColors.LIGHT }, lightKingIndex, lightKingIndex - 3);
+    let darkCastleKing: boolean = boardstate.cells[darkKingIndex].pieceType !== PieceType.KING ? false : canMove({ ...boardstate, currentPlayer: PlayerColors.DARK }, darkKingIndex, darkKingIndex + 2);
+    let darkCastleQueen: boolean = boardstate.cells[darkKingIndex].pieceType !== PieceType.KING ? false : canMove({ ...boardstate, currentPlayer: PlayerColors.DARK }, darkKingIndex, darkKingIndex - 3);
+
+    if (lightCastleKing)
+        FENstring += 'K';
+    if (lightCastleQueen)
+        FENstring += 'Q';
+    if (darkCastleKing)
+        FENstring += 'k';
+    if (darkCastleQueen)
+        FENstring += 'q';
+    if (!lightCastleKing && !lightCastleQueen && !darkCastleKing && !darkCastleQueen)
+        FENstring += '-';
+
+    //Ignoring En Passant and move turn counter
+    FENstring += ' - 0 0';
+    return FENstring;
 }

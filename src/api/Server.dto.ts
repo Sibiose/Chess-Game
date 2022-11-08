@@ -31,7 +31,10 @@ export interface RoomDto {
     messages: MessagesDto,
     gameState: any,
     isFull: boolean,
-    joinedPlayers:string[]
+    joinedPlayers: string[],
+    difficulty: number,
+    gameHasStarted:boolean,
+    gameHasEnded:boolean,
 }
 
 export interface UpdateRoomDto {
@@ -42,6 +45,8 @@ export interface UpdateRoomDto {
     messages?: MessagesDto;
     bottomPlayer?: PlayerDto;
     topPlayer?: PlayerDto;
+    gameHasStarted?:boolean;
+    gameHasEnded?:boolean
 }
 
 export interface PlayersDto {
@@ -57,6 +62,7 @@ export interface PlayerDto {
     socketId: string,
     room?: RoomDto,
     pieceColor?: PlayerColors,
+    isConnected? :boolean
 }
 
 export interface UpdatePlayerDto {
@@ -65,6 +71,7 @@ export interface UpdatePlayerDto {
     socketId?: string,
     room?: RoomDto
     pieceColor?: PlayerColors,
+    isConnected? :boolean
 }
 
 export interface MessagesDto {
@@ -84,4 +91,5 @@ export interface RoomRequest {
     isMultiplayer: boolean,
     password?: string,
     bottomPlayerColor: PlayerColors,
+    difficulty: number
 }

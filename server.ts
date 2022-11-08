@@ -2,12 +2,21 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors'
 import { Server } from 'socket.io';
-import { createDefaultBoard, getOppositePlayer } from './src/Model/Board';
+import { BoardState, createDefaultBoard, getBoardFEN, getOppositePlayer } from './src/Model/Board';
 import { PieceType, PlayerColors } from './src/Model/PieceEnums';
 import { canMove, move } from './src/Model/MovementLogic';
 import { MessageDto, MessagesDto, PlayerDto, PlayersDto, RoomDto, RoomRequest, RoomsDto, ServerState, UpdatePlayerDto, UpdateRoomDto } from './src/api/Server.dto';
 import { v4 as uuid } from 'uuid';
-import { Cell, emptyCell } from './src/Model/Cell';
+import { AIstringToIndex, Cell, emptyCell } from './src/Model/Cell';
+const jsChessEngine: any = require('js-chess-engine');
+const { aiMove } = jsChessEngine;
+import CronJob from "node-cron";
+
+//Clearing players from database every 10 minutes if disconnected
+CronJob.schedule('0 */10 * * * *', () => {
+    clearDisconnectedPlayers();
+});
+
 
 const app = express();
 app.use(cors());
@@ -82,14 +91,24 @@ io.on('connection', socket => {
     io.emit('updatedServerState', parseStateObject());
     socket.on('checkPlayerCookies', (playerId: string) => {
         if (getServerState().players.playersMap.has(playerId)) {
-            updatePlayer(playerId, { socketId: socket.id });
+            updatePlayer(playerId, { socketId: socket.id, isConnected: true });
             socket.join(playerId);
             let roomId = getPlayerById(playerId)?.room?.id;
             if (roomId && !socket.rooms.has(roomId)) {
                 socket.join(roomId);
             }
             io.to(playerId).emit('updatedCurrentPlayer', getPlayerById(playerId));
+            io.emit('updatedPlayers', parsePlayersObject(serverState.players));
         }
+    })
+
+    socket.on('disconnect', (reason: string) => {
+        let playerId = getPlayerIdBySocketId(socket.id);
+        if (getPlayerById(playerId)) {
+            updatePlayer(playerId, { isConnected: false });
+            io.emit('updatedPlayers', parsePlayersObject(serverState.players));
+        }
+
     })
 
     //Creating the current session for a new socket
@@ -135,14 +154,35 @@ io.on('connection', socket => {
             io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
             io.emit('updatedServerState', parseStateObject());
         }
-    })
+    });
 
     socket.on('playerMove', (roomId: string, from: number, to: number) => {
         let newState = movePiece(roomId, from, to);
+        let gameHasEnded = getRoomById(roomId)?.gameHasEnded ?? false;
+        let gameHasStartedYet: boolean = getRoomById(roomId)?.gameHasStarted ?? false;
         if (newState) {
             io.to(roomId).emit('updatedGameState', newState);
         }
+        if (!gameHasStartedYet || gameHasEnded) {
+            io.to(roomId).emit('updatedCurrentRoom', getRoomById(roomId));
+        }
     });
+
+    socket.on('aiMoveRequest', (roomId: string) => {
+        let room = getRoomById(roomId);
+        if (room && room.gameState && !room.isMultiplayer) {
+            let difficulty: number = room.difficulty ?? 1
+            let timeout: number = room.difficulty > 2 ? 0 : 1500;
+            setTimeout(() => {
+                let [from, to] = computeAIMove(room?.gameState, difficulty);
+                let aiMoveState = movePiece(roomId, from, to);
+                if (aiMoveState) {
+                    io.to(roomId).emit('aiUpdatedGameState', aiMoveState);
+                }
+            }, timeout);
+
+        }
+    })
 
     socket.on('sendMessage', (roomId: string, message: MessageDto) => {
         let messages = updateRoomMessages(roomId, message);
@@ -159,10 +199,13 @@ io.on('connection', socket => {
 export const getPlayerById = (playerId: string) => {
     return getServerState().players.playersMap.get(playerId);
 }
+export const getPlayerIdBySocketId = (socketId: string) => {
+    return Array.from(getServerState().players.playersMap.values()).filter(player => player.socketId === socketId).map(player => player.id)[0];
+}
 
 export const addPlayer = (socketId: string, username: string) => {
     let id = uuid();
-    let newPlayer: PlayerDto = { id, socketId, username, createdAt: getCurrentDateNumber() };
+    let newPlayer: PlayerDto = { id, socketId, username, createdAt: getCurrentDateNumber(), isConnected: true };
     setPlayers(id, newPlayer);
     return newPlayer;
 }
@@ -181,6 +224,15 @@ export const deletePlayer = (playerId: string) => {
     }
 }
 
+export const clearDisconnectedPlayers = () => {
+    let players = Array.from(getServerState().players.playersMap.values());
+    players.forEach(player => {
+        if (!player.isConnected && (player?.timestamp ?? 0 + 600000 > Date.now())) {
+            deletePlayer(player.id);
+        }
+    })
+}
+
 //ROOM METHODS
 
 export const getRoomById = (roomId: string) => {
@@ -190,7 +242,7 @@ export const getRoomById = (roomId: string) => {
 export const addRoom = (room: RoomRequest) => {
     let id = uuid();
     let gameState = createNewGame(room.bottomPlayerColor);
-    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [] }
+    let newRoom: RoomDto = { ...room, id, gameState, messages: { messages: [] }, isFull: false, joinedPlayers: [], gameHasStarted: false, gameHasEnded: false }
     setRooms(id, newRoom);
 
     return newRoom
@@ -207,11 +259,13 @@ export const updateRoom = (roomId: string, updatedRoom: UpdateRoomDto) => {
 export const joinRoom = (roomId: string, playerId: string) => {
     let player = getPlayerById(playerId);
     let room = getRoomById(roomId)
-    if (player && room) {
-        let roomLoad: UpdateRoomDto = { bottomPlayer: player, isFull: !room.isMultiplayer, joinedPlayers: room.joinedPlayers.concat(playerId) }
+    if (player && room && room.isFull === false) {
+        let isFull = room.isMultiplayer ? room.joinedPlayers.length >= 1 : true;
+        let roomLoad: UpdateRoomDto = { bottomPlayer: player, joinedPlayers: room.joinedPlayers.concat(playerId), isFull };
         let playerLoad: UpdatePlayerDto = { pieceColor: room.bottomPlayerColor };
         if (room.bottomPlayer) {
-            roomLoad = { topPlayer: player, isFull: true, joinedPlayers: room.joinedPlayers.concat(playerId) }
+            delete roomLoad.bottomPlayer;
+            roomLoad = { ...roomLoad, topPlayer: player }
             playerLoad = { pieceColor: getOppositePlayer(room.bottomPlayerColor) };
         }
         updateRoom(roomId, roomLoad);
@@ -227,7 +281,7 @@ export const leaveRoom = (roomId: string, playerId: string) => {
         let leavingPlayer = room?.bottomPlayer?.id === playerId ? { bottomPlayer: undefined } : { topPlayer: undefined };
         let remainingPlayers = room?.joinedPlayers.filter(id => id !== playerId);
         if (remainingPlayers.length) {
-            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer });
+            setRooms(roomId, { ...room, joinedPlayers: remainingPlayers, ...leavingPlayer, gameHasEnded: room.gameHasStarted ? true : false, isFull: room.gameHasStarted ? true : false });
         } else {
             deleteRoom(roomId);
         }
@@ -262,7 +316,7 @@ export const movePiece = (roomId: string, from: number, to: number) => {
 
         if (canMove(room.gameState, from, to)) {
             let gameState = move(room.gameState, from, to);
-            setRooms(roomId, { ...room, gameState });
+            setRooms(roomId, { ...room, gameState, gameHasStarted: true, gameHasEnded: gameState.isInMate || gameState.isInStaleMate ? true : false });
             room.joinedPlayers.forEach(playerId => {
                 updatePlayer(playerId, { room: getRoomById(roomId) });
             });
@@ -271,10 +325,18 @@ export const movePiece = (roomId: string, from: number, to: number) => {
     }
 }
 
+export const computeAIMove = (boardState: BoardState, difficulty: number): [number, number] => {
+    let aiMoveObject = aiMove(getBoardFEN(boardState), difficulty);
+    let aiFrom = AIstringToIndex(Object.keys(aiMoveObject)[0]);
+    let aiTo = AIstringToIndex(String((Object.values(aiMoveObject)[0])));
+
+    return [aiFrom, aiTo];
+}
+
 export const seedRooms = (n: number) => {
     for (let i = 0; i < n; i++) {
         let id = uuid();
-        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [] }
+        let room: RoomDto = { id, name: `Room ${i}`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: createNewGame(PlayerColors.LIGHT), joinedPlayers: [], difficulty: 1, gameHasStarted: false, gameHasEnded: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -293,7 +355,7 @@ export const seedStalemateRoom = (n: number) => {
             emptyCell, { pieceType: PieceType.KNIGHT, pieceColor: bottomPlayer, id: 26 }, emptyCell, emptyCell, { pieceType: PieceType.KING, pieceColor: bottomPlayer, id: 5 }, emptyCell, emptyCell, emptyCell,
         ]
         let id = uuid()
-        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [] }
+        let room: RoomDto = { id, name: `Room Stalemate`, isLocked: false, isMultiplayer: true, bottomPlayerColor: PlayerColors.LIGHT, messages: { messages: [] }, isFull: false, gameState: { ...createNewGame(PlayerColors.LIGHT), cells }, joinedPlayers: [], difficulty: 1, gameHasStarted: false, gameHasEnded: false }
         getServerState().rooms.roomsMap.set(id, room);
     }
 }
@@ -306,6 +368,8 @@ export const seedPlayers = (n: number) => {
     }
 }
 
-seedRooms(100);
-seedStalemateRoom(5);
-seedPlayers(36);
+
+
+// seedRooms(100);
+// seedStalemateRoom(5);
+// seedPlayers(36);

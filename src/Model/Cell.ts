@@ -36,3 +36,11 @@ export const positionToString = (x: number, y: number): string => {
 export const indexToString = (index: number): string => {
     return positionToString(...indexToPosition(index));
 }
+
+export const AIstringToIndex = (positionString: string): number => {
+    let xAxis = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    let x = xAxis.indexOf(positionString.split("")[0]) + 1;
+    let y = Number(positionString.split("")[1]);
+
+    return positionToIndex(x, y);
+}
