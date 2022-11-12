@@ -343,8 +343,8 @@ export const detectCheckMate = (boardState: BoardState): boolean => {
 }
 
 export const detectHasLegalMoves = (boardState: BoardState, playerColor: PlayerColors) => {
-    let playerCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor === playerColor ? i : null).filter(i => i);
-    let possibleCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor !== playerColor ? i : null).filter(i => i);
+    let playerCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor === playerColor ? i : null).filter(i => i!==null);
+    let possibleCellsIndexes = boardState.cells.map((cell, i) => cell?.pieceColor !== playerColor ? i : null).filter(i => i!== null);
     let hasLegalMoves = false;
 
     //Checks all legal moves for a specific playerColor
