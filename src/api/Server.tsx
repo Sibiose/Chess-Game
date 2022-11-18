@@ -5,8 +5,8 @@ import { BoardState } from "../Model/Board";
 import { playSound } from "../Model/MovementLogic";
 import { useCookies } from "react-cookie";
 
-// const PORT: string = "http://192.168.182.157:7000";
-const PORT:string = "http://192.168.16.100:7000"
+const PORT: string = "http://192.168.182.157:7000";
+// const PORT:string = "http://192.168.16.100:7000"
 let globalSocket: any = undefined;
 
 const ServerContext = createContext<Server>({ connected: false, rooms: { rooms: [] }, players: { players: [] } });

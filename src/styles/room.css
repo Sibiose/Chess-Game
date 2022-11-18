@@ -74,8 +74,8 @@
     transform: translate(-50%, -50%);
     background-color: var(--background-color-dark);
     color: var(--secondary-color-light);
-    max-width: 600px;
-    width: 50%;
+    max-width: 800px;
+    width: 60%;
     height: 4rem;
     min-width: 200px;
     z-index: 4;

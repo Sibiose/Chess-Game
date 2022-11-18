@@ -286,6 +286,7 @@ export const leaveRoom = (roomId: string, playerId: string) => {
         } else {
             deleteRoom(roomId);
         }
+        remainingPlayers.forEach(id=> updatePlayer(id, {room: getRoomById(roomId)}));
     }
 }
 
