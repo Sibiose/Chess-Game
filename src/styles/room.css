@@ -45,13 +45,12 @@
     padding: 2rem;
     margin-left: auto;
     margin-right: auto;
-
 }
 
 .room-main {
     position: relative;
-    min-width: 41rem;
-    min-height: 41rem;
+    min-width: 24rem;
+    min-height: 24rem;
     width: 80vh;
     height: 80vh;
     max-width: 90rem;
@@ -74,8 +73,8 @@
     transform: translate(-50%, -50%);
     background-color: var(--background-color-dark);
     color: var(--secondary-color-light);
-    max-width: 800px;
-    width: 60%;
+    max-width: 900px;
+    width: 70%;
     height: 4rem;
     min-width: 200px;
     z-index: 4;
@@ -128,8 +127,8 @@
 }
 
 .board-overlay {
-    min-width: 41rem;
-    min-height: 41rem;
+    min-width: inherit;
+    min-height: inherit;
     width: 80vh;
     height: 80vh;
     max-width: 90rem;
@@ -153,4 +152,34 @@
     top: 50%;
     z-index: 3;
     transform: translate(-50%, -50%);
+}
+
+@media (max-height:800px){
+    .room-main {
+        position: relative;
+        min-width: 24rem;
+        min-height: 24rem;
+    }
+
+    .player-details {
+        padding: 0.4rem;
+    }
+    .player-name{
+        font-size: 1.1rem;
+    }
+    
+    .room-aside {
+        min-width: 300px;
+    }
+    .room-section {
+        padding: 0.5rem;
+    }
+    .board-overlay {
+        top: 2.95rem;
+    }
+    .game-result-modal {
+        max-width: 1000px;
+        width: 85%;
+        font-size: 1.2rem;
+    }
 }

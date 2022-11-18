@@ -46,3 +46,9 @@
     height: 70%;
     width: 70%;
 }
+
+@media (max-height:800px){
+    #chess-table {
+        margin:0.5rem 0;
+    }
+}

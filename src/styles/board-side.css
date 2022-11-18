@@ -197,3 +197,28 @@
     letter-spacing: 1px;
     margin-top: 1rem;
 }
+
+@media (max-height:800px) {
+    .board-side-wrapper {
+        height: 400px;
+    }
+
+    .game-details,
+    .chat-screen {
+        min-height: 350px;
+        padding: 1rem;
+    }
+    .chat-input-wrapper input {
+        padding: 0.5rem;
+        width: 80%;
+    }
+    .my-turn {
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+    }
+    .leave-room-btn {
+        padding: 0.5rem 3rem;
+        font-size: 1.2rem;
+        margin-top: 0.3rem;
+    }
+}
